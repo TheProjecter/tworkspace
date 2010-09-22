@@ -1,0 +1,13 @@
+# C++ source files 
+CPP_FILES := main.cpp
+
+CUDA_FILES :=
+
+CPP_COMPILER_FLAGS += \
+                      -Wall \
+
+CUDA_COMPILER_FLAGS     += \
+
+LINKER_FLAGS += \
+
+include $(BUILDER_ROOT)/core/exe.mk

@@ -1,0 +1,27 @@
+
+export BUILDER_NAME	:= tbuilder
+
+export PROJECT_NAME	:= 
+
+export SOURCES		:= \
+	        src
+
+export BUILDER_ROOT     := $(shell pwd)/../$(BUILDER_NAME)
+
+# Pointing to the development root directory
+export DEV_ROOT         := $(shell pwd)
+
+export PREFIX           := $(shell pwd)/results
+
+include $(BUILDER_ROOT)/core/main.mk
+
+# Package Makefile - One for each package, located within the package
+# directory, and containing the list of source files that constitute the
+# package. These files are very simple, and can potentially be auto created.
+#
+# Project Makefile - Located at $DEV_ROOT, listing all packages constitute 
+# the project, the executable class as well as documentation details.
+#
+# Main Makefile - Located in the $DEV_ROOT/build/core directory and 
+# containing all the fine details about how to produce targets from source.
+# This is the heart and the brain of the make system.

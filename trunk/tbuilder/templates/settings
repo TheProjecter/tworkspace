@@ -1,0 +1,2 @@
+export cuda=enable
+export debug=disable
