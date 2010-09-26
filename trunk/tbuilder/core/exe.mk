@@ -25,10 +25,7 @@ exe: create_directories compile link run_script $(DEV_ROOT)/.settings
 run_script : 
 	@echo "#! /bin/bash\n">$(DEV_ROOT)/run
 	@echo "export DEV_ROOT="$(DEV_ROOT)"\n">>$(DEV_ROOT)/run
-	@for i in $(SOURCES); do \
-		I=$$(basename $$i); \
-		echo "$(DEBUGER) $(BIN_PATH)/$$I">> $(DEV_ROOT)/run; \
-	done;
+	@echo "$(DEBUGER) $(BIN_PATH)/$(PROJECT_NAME)">> $(DEV_ROOT)/run;
 	@chmod a+x $(DEV_ROOT)/run
 
 .PHONY : create_directories
