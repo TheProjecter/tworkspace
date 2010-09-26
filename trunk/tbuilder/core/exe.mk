@@ -1,11 +1,9 @@
 
-PROJECT			:= $(notdir $(shell pwd))
-
 OBJ_FILES_ 		:= $(patsubst %.cpp,%.o,$(CPP_FILES))
 DEPENDENCY_FILES_ 	:= $(patsubst %.cpp,%.d,$(CPP_FILES))
 
-CURRENT_OBJ_DIR	:= $(OBJ_PATH)/$(PROJECT)
-CURRENT_DEP_DIR := $(DEP_PATH)/$(PROJECT)
+CURRENT_OBJ_DIR	:= $(OBJ_PATH)/$(PROJECT_NAME)
+CURRENT_DEP_DIR := $(DEP_PATH)/$(PROJECT_NAME)
 
 CPP_OBJ_FILES	:= $(addprefix $(CURRENT_OBJ_DIR)/,$(OBJ_FILES_))
 DEPENDENCY_FILES:= $(addprefix $(CURRENT_DEP_DIR)/,$(DEPENDENCY_FILES_))
