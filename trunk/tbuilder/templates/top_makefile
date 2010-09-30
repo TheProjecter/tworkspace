@@ -8,8 +8,6 @@ export PROJECT_NAME	:= $(notdir $(PWD))
 export SOURCES		:= \
 	        src
 
-export BUILDER_ROOT     := $(PWD)/../$(BUILDER_NAME)
-
 # Pointing to the development root directory
 export DEV_ROOT         := $(PWD)
 

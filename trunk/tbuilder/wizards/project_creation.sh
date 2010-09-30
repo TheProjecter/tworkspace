@@ -19,7 +19,7 @@ if [ "$PREFIX" == "" ] ; then
 fi
 
 mkdir $NAME
-echo "" >> $PREFIX/$NAME/makefile
+echo "export BUILDER_ROOT="$BUILDER_DIR >> $PREFIX/$NAME/makefile
 echo "" >> $PREFIX/$NAME/.settings
 mkdir $NAME/src
 echo "" >> $PREFIX/$NAME/src/makefile
