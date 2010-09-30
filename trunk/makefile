@@ -9,7 +9,7 @@ default:
 
 .PHONY: project
 project:
-	/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name)
+	@/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name)
 
 .PHONY: tarball
 tarball:

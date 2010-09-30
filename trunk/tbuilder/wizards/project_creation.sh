@@ -4,8 +4,6 @@ BUILDER_DIR="$1"
 PREFIX="$2"
 NAME="$3"
 
-echo "|||"$BUILDER_DIR"|||"
-
 if [ "$BUILDER_DIR" == "" ]; then 
         echo "Error: the builder directory is not specified.";
         exit
