@@ -1,6 +1,6 @@
 
 BUILDER_NAME	= tbuilder
-BUILDER_DIR 	= $(shell pwd)/$(BUILDER_NAME)
+BUILDER_DIR 	= $(shell pwd)/../$(BUILDER_NAME)
 
 .PHONY: default
 default:
@@ -9,15 +9,7 @@ default:
 
 .PHONY: project
 project:
-	@mkdir $(name)
-	@echo "" >> $(name)/makefile
-	@echo "" >> $(name)/.settings
-	@mkdir $(name)/src
-	@echo "" >> $(name)/src/makefile
-	@cat $(BUILDER_DIR)/templates/main.cpp >> $(name)/src/main.cpp
-	@cat $(BUILDER_DIR)/templates/top_makefile >> $(name)/makefile
-	@cat $(BUILDER_DIR)/templates/project_makefile >> $(name)/src/makefile
-	@cat $(BUILDER_DIR)/templates/settings >> $(name)/.settings
+	$(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name)
 
 .PHONY: tarball
 tarball:
