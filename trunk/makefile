@@ -1,6 +1,6 @@
 
 BUILDER_NAME	= tbuilder
-BUILDER_DIR 	= $(shell pwd)/../$(BUILDER_NAME)
+BUILDER_DIR 	= $(shell pwd)/$(BUILDER_NAME)
 
 .PHONY: default
 default:
@@ -9,7 +9,7 @@ default:
 
 .PHONY: project
 project:
-	$(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name)
+	/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name)
 
 .PHONY: tarball
 tarball:
