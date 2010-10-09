@@ -1,7 +1,7 @@
 # C++ source files 
-CPP_FILES := main.cpp
+CPP_FILES += main.cpp
 
-CUDA_FILES :=
+CUDA_FILES +=
 
 CPP_COMPILER_FLAGS += \
                       -Wall \

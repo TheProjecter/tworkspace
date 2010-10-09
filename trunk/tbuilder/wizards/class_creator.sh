@@ -28,6 +28,9 @@ echo "_HPP" >> $HPP_FILE
 echo -n "#define " >> $HPP_FILE
 echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
 echo "_HPP" >> $HPP_FILE
+echo -n "#endif //" >> $HPP_FILE
+echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
+echo "_HPP" >> $HPP_FILE
 
 echo "" >> $HPP_FILE
 echo "class "$NAME >> $HPP_FILE
@@ -44,6 +47,13 @@ echo "" >> $CPP_FILE
 echo $NAME"::"$NAME"()" >> $CPP_FILE
 echo "{" >> $CPP_FILE
 echo "}" >> $CPP_FILE
+
+MAKEFILE=$DEV_ROOT/$SOURCES/makefile
+mv $MAKEFILE $MAKEFILE"_tmp"
+echo "#ADDED BY WIZARD" > $MAKEFILE
+echo "CPP_FILES += "$NAME".cpp" >> $MAKEFILE
+echo "" >> $MAKEFILE
+cat $MAKEFILE"_tmp" >> $MAKEFILE
 
 touch $DEV_ROOT/$SOURCES/$NAME.cpp
 
