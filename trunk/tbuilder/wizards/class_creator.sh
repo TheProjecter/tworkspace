@@ -28,9 +28,6 @@ echo "_HPP" >> $HPP_FILE
 echo -n "#define " >> $HPP_FILE
 echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
 echo "_HPP" >> $HPP_FILE
-echo -n "#endif //" >> $HPP_FILE
-echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
-echo "_HPP" >> $HPP_FILE
 
 echo "" >> $HPP_FILE
 echo "class "$NAME >> $HPP_FILE
@@ -39,6 +36,10 @@ echo "public:" >> $HPP_FILE
 echo -e "\t"$NAME"();" >> $HPP_FILE
 echo "};" >> $HPP_FILE
 echo "" >> $HPP_FILE
+
+echo -n "#endif //" >> $HPP_FILE
+echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
+echo "_HPP" >> $HPP_FILE
 
 CPP_FILE=$DEV_ROOT/$SOURCES/$NAME.cpp
 echo "" > $CPP_FILE
