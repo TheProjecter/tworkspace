@@ -23,10 +23,10 @@ fi
 HPP_FILE=$DEV_ROOT/$SOURCES/$NAME.hpp
 echo "" > $HPP_FILE
 echo -n "#ifndef " >> $HPP_FILE
-echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
+echo -n $NAME|tr [:lower:] [:upper:] >> $HPP_FILE
 echo "_HPP" >> $HPP_FILE
 echo -n "#define " >> $HPP_FILE
-echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
+echo -n $NAME|tr [:lower:] [:upper:] >> $HPP_FILE
 echo "_HPP" >> $HPP_FILE
 
 echo "" >> $HPP_FILE
@@ -38,7 +38,7 @@ echo "};" >> $HPP_FILE
 echo "" >> $HPP_FILE
 
 echo -n "#endif //" >> $HPP_FILE
-echo -n $NAME|tr [a-z] [A-Z] >> $HPP_FILE
+echo -n $NAME|tr [:lower:] [:upper:] >> $HPP_FILE
 echo "_HPP" >> $HPP_FILE
 
 CPP_FILE=$DEV_ROOT/$SOURCES/$NAME.cpp
