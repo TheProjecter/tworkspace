@@ -23,7 +23,7 @@ if [ "$TYPE" == "" ]; then
         echo -n "Project TYPE: ";
         read TYPE
         if [ "$TYPE" == "sysc" ]; then 
-                $BUILDER_DIR/wizards/project_creation_sysc.sh $1 $2 $3
+                $BUILDER_DIR/wizards/project_creation_sysc.sh $1 $2 $NAME
                 exit
         fi
 fi
