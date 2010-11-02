@@ -1,0 +1,35 @@
+
+#ifndef _UTILITY_HPP_
+#define _UTILITY_HPP_
+
+#include <fstream>
+#include <stdlib.h>
+
+std::string
+get_path()
+{
+        const char* c = std::getenv("DEV_ROOT");
+        if(0 == c) {
+                std::cerr << "The DEV_ROOT doesn't specified." << std::endl;
+        }
+        std::string s(c);
+        s += "/";
+        return s;
+}
+
+template <typename T>
+T read_input(const std::string& s) throw()
+{
+        std::string h = get_path() + s;
+        std::ifstream f(h.c_str());
+        if( !f.is_open()) {
+                std::cerr << "The \"" << h 
+                        << "\" file doesn't exists." << std::endl;
+        }
+        T a;
+        f >> a;
+        f.close();
+        return a;
+}
+
+#endif // _UTILITY_HPP_

@@ -24,6 +24,7 @@ echo "" >> $PREFIX/$NAME/.settings
 mkdir $NAME/src
 echo "" >> $PREFIX/$NAME/src/makefile
 cat $BUILDER_DIR/templates/systemc_main >> $PREFIX/$NAME/src/main.cpp
+cat $BUILDER_DIR/templates/systemc_utility >> $PREFIX/$NAME/src/systemc_utility.hpp
 cat $BUILDER_DIR/templates/top_makefile >> $PREFIX/$NAME/makefile
 cat $BUILDER_DIR/templates/project_makefile_systemc >> $PREFIX/$NAME/src/makefile
 cat $BUILDER_DIR/templates/settings >> $PREFIX/$NAME/.settings
