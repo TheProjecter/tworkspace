@@ -19,9 +19,13 @@ if [ "$PREFIX" == "" ] ; then
         PREFIX=.
 fi
 
-if [ "$TYPE" == "sysc" ]; then 
-        $BUILDER_DIR/wizards/project_creation_sysc.sh $1 $2 $3 $4
-        exit
+if [ "$TYPE" == "" ]; then 
+        echo -n "Project TYPE: ";
+        read TYPE
+        if [ "$TYPE" == "sysc" ]; then 
+                $BUILDER_DIR/wizards/project_creation_sysc.sh $1 $2 $3
+                exit
+        fi
 fi
 
 mkdir $NAME
