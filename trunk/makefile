@@ -9,7 +9,7 @@ default:
 
 .PHONY: project
 project:
-	@/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name)
+	@/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name) $(type)
 
 .PHONY: tarball
 tarball:
@@ -21,3 +21,4 @@ clean:
 	@rm -fr $(BUILDER_DIR)/bin
 	@rm -fr $(BUILDER_DIR)/obj
 	@rm -fr $(BUILDER_DIR)/dep
+
