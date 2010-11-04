@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <systemc.h>
-#include <systemc_utility.hpp>
+#include <tutilities.hpp>
 
 int sc_main(int ac, char** av)
 {
