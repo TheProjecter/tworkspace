@@ -36,6 +36,7 @@ echo "" >> $PREFIX/$NAME/src/makefile
 cat $BUILDER_DIR/templates/main.cpp >> $PREFIX/$NAME/src/main.cpp
 cat $BUILDER_DIR/templates/top_makefile >> $PREFIX/$NAME/makefile
 cat $BUILDER_DIR/templates/project_makefile >> $PREFIX/$NAME/src/makefile
+cat $BUILDER_DIR/templates/cpp_utilities >> $PREFIX/$NAME/src/cpp_utilities.hpp
 cat $BUILDER_DIR/templates/settings >> $PREFIX/$NAME/.settings
 
 
