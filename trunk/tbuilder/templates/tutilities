@@ -4,6 +4,8 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <iterator>
+#include <algorithm>
 
 enum error_t
 {
@@ -49,6 +51,13 @@ error_t read_file(const std::string& s, T& a) throw()
         f >> a;
         f.close();
         return a;
+}
+
+template <typename T>
+error_t print_r(const T* a, const T* b) {
+        std::copy(a, b, std::ostream_iterator<T>(std::cout, " "));
+        std::cout << std::endl;
+        return SUCCESS;
 }
 
 #endif // TWORKSPACE_CPP_UTILITIES_HPP

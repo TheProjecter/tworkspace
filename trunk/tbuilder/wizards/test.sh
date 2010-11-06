@@ -24,7 +24,6 @@ TULITIES_TMPL=$BUILDER_DIR/templates/tutilities
 TOP_MKF_TMPL=$BUILDER_DIR/templates/top_makefile
 PROJECT_MKF_TMPL=$BUILDER_DIR/templates/project_makefile
 SETTINGS_TMPL=$BUILDER_DIR/templates/settings
-PROJECT_MKF=$DEV_ROOT/$TEST_DIR/simple/src/makefile
 PROJECT_CREATOR=$BUILDER_DIR/wizards/project_creation.sh
 
 if [ ! -d $TEST_DIR ]; then 
@@ -40,6 +39,7 @@ if [ "$name"=="" ]; then
         read name
 fi 
 
+PROJECT_MKF=$DEV_ROOT/$TEST_DIR/$name/src/makefile
 $PROJECT_CREATOR $BUILDER_DIR $DEV_ROOT/$TEST_DIR $name
 
 mv $PROJECT_MKF $PROJECT_MKF"_tmp"
