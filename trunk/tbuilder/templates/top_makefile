@@ -5,8 +5,9 @@ PWD 			:= $(shell pwd)
 
 export PROJECT_NAME	:= $(notdir $(PWD))
 
-export SOURCES		:= \
-	        src
+export SOURCES		:= src
+
+export TEST_DIR		:=  tst
 
 # Pointing to the development root directory
 export DEV_ROOT         := $(PWD)
@@ -15,6 +16,7 @@ export PREFIX           := $(PWD)/results
 
 include $(BUILDER_ROOT)/core/main.mk
 include $(BUILDER_ROOT)/core/wizards.mk
+include $(BUILDER_ROOT)/core/test.mk
 
 # Package Makefile - One for each package, located within the package
 # directory, and containing the list of source files that constitute the

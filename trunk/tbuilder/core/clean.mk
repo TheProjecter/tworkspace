@@ -3,6 +3,7 @@
 
 clean:
 	@echo -n "Cleaning... " 
+	@rm -fr $()
 	@rm -fr $(OBJ_PATH)
 	@rm -fr $(BIN_PATH)
 	@rm -fr $(DEV_ROOT)/run

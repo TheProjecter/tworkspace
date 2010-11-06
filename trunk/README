@@ -1,0 +1,12 @@
+
+During the working with the enviroment please note that the following variables
+are available
+
+BUILDER_ROOT - The path of the tbuilder
+BUILDER_NAME - tbuilder
+PROJECT_NAME - the name of the project
+SOURCES	     - the name of the sources folder
+TEST_DIR     - the name of the sources folder
+DEV_ROOT        the path of the development root, that is the folder where is 
+                the SOURCES directory
+PREFIX       - the path where should be created the binary files

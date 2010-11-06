@@ -20,23 +20,34 @@ if [ "$PREFIX" == "" ] ; then
 fi
 
 if [ "$TYPE" == "" ]; then 
-        echo -n "Project TYPE: (CPP|sysc)";
+        echo -n "Project TYPE: (CPP|systemc)";
         read TYPE
-        if [ "$TYPE" == "sysc" ]; then 
-                $BUILDER_DIR/wizards/project_creation_sysc.sh $1 $2 $NAME
-                exit
+        if [ "$TYPE" == "" ]; then 
+                TYPE=cpp
         fi
 fi
 
-mkdir $NAME
+MAIN_TMPL=$BUILDER_DIR/templates/main
+TULITIES_TMPL=$BUILDER_DIR/templates/tutilities
+TOP_MKF_TMPL=$BUILDER_DIR/templates/top_makefile
+PROJECT_MKF_TMPL=$BUILDER_DIR/templates/project_makefile
+SETTINGS_TMPL=$BUILDER_DIR/templates/settings
+
+if [ "$TYPE" == "systemc" ]; then 
+        MAIN_TMPL=$BUILDER_DIR/templates/systemc_main
+        PROJECT_MKF_TMPL=$BUILDER_DIR/templates/project_makefile_systemc
+fi
+
+
+mkdir -p $PREFIX/$NAME
+mkdir -p $PREFIX/$NAME/src
 echo "export BUILDER_ROOT="$BUILDER_DIR >> $PREFIX/$NAME/makefile
 echo "" >> $PREFIX/$NAME/.settings
-mkdir $NAME/src
 echo "" >> $PREFIX/$NAME/src/makefile
-cat $BUILDER_DIR/templates/main.cpp >> $PREFIX/$NAME/src/main.cpp
-cat $BUILDER_DIR/templates/top_makefile >> $PREFIX/$NAME/makefile
-cat $BUILDER_DIR/templates/project_makefile >> $PREFIX/$NAME/src/makefile
-cat $BUILDER_DIR/templates/tutilities >> $PREFIX/$NAME/src/tutilities.hpp
-cat $BUILDER_DIR/templates/settings >> $PREFIX/$NAME/.settings
 
+cat $MAIN_TMPL >> $PREFIX/$NAME/src/main.cpp
+cat $TULITIES_TMPL >> $PREFIX/$NAME/src/tutilities.hpp
+cat $TOP_MKF_TMPL>> $PREFIX/$NAME/makefile
+cat $PROJECT_MKF_TMPL>> $PREFIX/$NAME/src/makefile
+cat $SETTINGS_TMPL >> $PREFIX/$NAME/.settings
 

@@ -21,4 +21,5 @@ clean:
 	@rm -fr $(BUILDER_DIR)/bin
 	@rm -fr $(BUILDER_DIR)/obj
 	@rm -fr $(BUILDER_DIR)/dep
+	@rm -fr $(BUILDER_DIR)/tst
 

@@ -23,10 +23,13 @@ exe: create_directories compile link run_script $(DEV_ROOT)/.settings
 
 .PHONY: run_script
 run_script : 
-	@echo "#! /bin/bash\n">$(DEV_ROOT)/run
-	@echo "export DEV_ROOT="$(DEV_ROOT)"\n">>$(DEV_ROOT)/run
-	@echo "$(DEBUGER) $(BIN_PATH)/$(PROJECT_NAME)">> $(DEV_ROOT)/run;
-	@chmod a+x $(DEV_ROOT)/run
+	@echo "#! /bin/bash\n" >$(DEV_ROOT)/run
+	@echo "export DEV_ROOT="$(DEV_ROOT)"\n" >>$(DEV_ROOT)/run
+	@echo "$(DEBUGER) $(BIN_PATH)/$(PROJECT_NAME)" >> $(DEV_ROOT)/run;
+	@echo 'if [ "$$1"  == "tester" ]; then' >> $(DEV_ROOT)/run
+	@echo '$(DEV_ROOT)/$(TEST_DIR)/tester.sh $(TEST_DIR)' >> $(DEV_ROOT)/run
+	@echo "fi" >> $(DEV_ROOT)/run
+	@chmod a+x $(DEV_ROOT)/run>> $(DEV_ROOT)/run
 
 .PHONY : create_directories
 create_directories :
