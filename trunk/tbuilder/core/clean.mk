@@ -2,9 +2,4 @@
 .PHONY : clean
 
 clean:
-	@echo -n "Cleaning... " 
-	@rm -fr $()
-	@rm -fr $(OBJ_PATH)
-	@rm -fr $(BIN_PATH)
-	@rm -fr $(DEV_ROOT)/run
-	@echo "Done"
+	@bash $(BUILDER_ROOT)/wizards/clean.sh $(OBJ_PATH) $(BIN_PATH) $(DEV_ROOT) 

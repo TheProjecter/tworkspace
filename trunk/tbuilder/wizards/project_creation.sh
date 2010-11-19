@@ -11,7 +11,7 @@ if [ "$BUILDER_DIR" == "" ]; then
 fi
 
 if [ "$NAME" == "" ] ; then
-        echo -n "Project NAME: ";
+        echo -n "Enter project name: ";
         read NAME
 fi 
 
@@ -19,8 +19,10 @@ if [ "$PREFIX" == "" ] ; then
         PREFIX=.
 fi
 
+TYPE=cpp
+
 if [ "$TYPE" == "" ]; then 
-        echo -n "Project TYPE: (CPP|systemc)";
+        echo -n "Enter project type: (CPP|systemc)";
         read TYPE
         if [ "$TYPE" == "" ]; then 
                 TYPE=cpp
