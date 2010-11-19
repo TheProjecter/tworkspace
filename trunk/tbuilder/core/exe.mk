@@ -40,13 +40,17 @@ create_directories :
 	@mkdir -p $(BIN_PATH)
 	@echo "Done"
 
+$(info )
+$(info $(DEPENDENCY_FILES))
+$(info )
+-include $(DEPENDENCY_FILES)
+
 .PHONY: compile
-compile: $(DEPENDENCY_FILES) $(CPP_OBJ_FILES) $(CUDA_OBJ_FILES)
+compile: $(DEPENDENCY_FILES) $(CPP_OBJ_FILES) $(CUDA_OBJ_FILES) 
 	@echo -n "Compiling... "
 	@echo "Done"
 
--include $(DEPENDENCY_FILES)
-
+.PHONY: $(DEPENDENCY_FILES)
 $(CURRENT_DEP_DIR)/%.d : %.cpp $(DEV_ROOT)/.settings
 	@$(CPP_COMPILER) $(CPP_COMPILER_FLAGS) -MM $< -MF $@ -MT '$@ \
 		$(subst .d,.o,$@)' 
