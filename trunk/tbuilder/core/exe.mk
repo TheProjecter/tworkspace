@@ -40,9 +40,6 @@ create_directories :
 	@mkdir -p $(BIN_PATH)
 	@echo "Done"
 
-$(info )
-$(info $(DEPENDENCY_FILES))
-$(info )
 -include $(DEPENDENCY_FILES)
 
 .PHONY: compile
