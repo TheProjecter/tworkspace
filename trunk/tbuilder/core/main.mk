@@ -31,10 +31,12 @@ all : $(SOURCES)
 
 .PHONY : $(SOURCES)
 $(SOURCES) :
-	@echo "Build "$@
-	@make -C $@ 
+	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
+		$(BUILDER_ROOT)/wizards/colors.sh \
+		"message" \
+		"Build "$@
+	@make --no-print-directory -C $@ 
 
-#@make --no-print-directory -C $@ 
 include $(BUILDER_ROOT)/core/clean.mk
 include $(BUILDER_ROOT)/core/setup.mk
 include $(BUILDER_ROOT)/core/install.mk

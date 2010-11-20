@@ -1,21 +1,23 @@
 #!./bin/bash
 
 BUILDER_DIR=$1
-TEST_DIR=$2
-DEV_ROOT=$3
+DEV_ROOT=$2
+COLORS=$3
 
-if [ "$BUILDER_DIR" == "" ]; then 
-        echo "Error: the builder directory is not specified.";
-        exit
+
+if [ "$COLORS" != "" ]; then 
+        source $COLORS
+        warning_color=${txtblu}
+        error_color=${txtred}
+        message_color=${bldblk}
+        reset_color=${txtrst}
 fi
 
-if [ "$TEST_DIR" == "" ]; then 
-        echo "Warning: the test directory is not specified.";
-        echo -n "Test directory: (tst)"
-        read TEST_DIR
-        if [ "$TEST_DIR" == "" ]; then 
-                TEST_DIR=tst
-        fi
+if [ "$BUILDER_DIR" == "" ]; then 
+        echo -e "$error_color \
+Error: the builder directory is not specified.\
+                $reset_color";
+        exit
 fi
 
 TEST_TMPL=$BUILDER_DIR/templates/tester
@@ -27,16 +29,19 @@ SETTINGS_TMPL=$BUILDER_DIR/templates/settings
 PROJECT_CREATOR=$BUILDER_DIR/wizards/project_creation.sh
 
 if [ ! -d $TEST_DIR ]; then 
-        echo "Warning: The test directory does not exist.";
-        echo "TBuilder creates an empry directory.";
+        echo -e "$warning_color \
+TBuilder created tst directory under Your project root. \
+                $reset_color";
         mkdir $TEST_DIR
         cat $TEST_TMPL >> $TEST_DIR/tester.sh
         chmod a+x $TEST_DIR/tester.sh
 fi
 
 if [ "$name"=="" ]; then 
-        echo -n "Enter test name: ";
+        echo -n -e "$message_color \
+Enter test name: ";
         read name
+        echo -e "$reset_color";
 fi 
 
 PROJECT_MKF=$DEV_ROOT/$TEST_DIR/$name/src/makefile

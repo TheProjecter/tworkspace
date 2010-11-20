@@ -4,7 +4,6 @@ DEV_ROOT="$1"
 SOURCES="$2"
 NAME="$3"
 
-
 if [ "$DEV_ROOT" == "" ]; then 
         echo "Error: the development directory is not specified.";
         exit

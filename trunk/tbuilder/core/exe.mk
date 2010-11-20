@@ -33,19 +33,29 @@ run_script :
 
 .PHONY : create_directories
 create_directories :
-	@echo -n "Creating Directories... " 
+	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
+		$(BUILDER_ROOT)/wizards/colors.sh \
+		"message_done" \
+		" Creating Directories... " 
 	@mkdir -p $(CURRENT_OBJ_DIR)
 	@mkdir -p $(CURRENT_OBJ_DIR)/cuda
 	@mkdir -p $(CURRENT_DEP_DIR)
 	@mkdir -p $(BIN_PATH)
-	@echo "Done"
+	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
+		$(BUILDER_ROOT)/wizards/colors.sh \
+		"done" \
 
 -include $(DEPENDENCY_FILES)
 
 .PHONY: compile
 compile: $(DEPENDENCY_FILES) $(CPP_OBJ_FILES) $(CUDA_OBJ_FILES) 
-	@echo -n "Compiling... "
-	@echo "Done"
+	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
+		$(BUILDER_ROOT)/wizards/colors.sh \
+		"message_done" \
+		" Compile... " 
+	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
+		$(BUILDER_ROOT)/wizards/colors.sh \
+		"done" \
 
 .PHONY: $(DEPENDENCY_FILES)
 $(CURRENT_DEP_DIR)/%.d : %.cpp $(DEV_ROOT)/.settings

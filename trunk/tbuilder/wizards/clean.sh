@@ -1,26 +1,41 @@
 #!/bin/bash
 
-bldblk='\e[1;30m' # Black - Bold
-txtred='\e[0;31m'
-txtrst='\e[0m'    # Text Reset
-txtblu='\e[0;34m' # Blue
-bldgrn='\e[1;32m' # Green
+if [ "$4" != "" ]; then 
+        source $4
+        warning_color=${txtblu}
+        error_color=${txtred}
+        message_color=${bldblk}
+        reset_color=${txtrst}
+        done_color=${undwht}${badgrn}
+fi
 
 if [ -d "$1" ]; then 
-        echo -n -e " ${bldblk}> cleaning object files...${txtrst}"
+        echo -n -e "$message_color \
+cleaning object files...\
+$reset_color"
         rm -fr $1
-        echo -e "${bldgrn}done.${txtrst}"
+        echo -e "$done_color\
+ done \
+$reset_color"
 fi
 
 if [ -d "$2" ]; then 
-        echo -n -e " ${bldblk}> cleaning executables...${txtrst}"
+        echo -n -e "$message_color \
+cleaning executables... \
+$reset_color"
         rm -fr $2
-        echo -e "${bldgrn}done.${txtrst}"
+        echo -e "$done_color\
+ done \
+$reset_color"
 fi
 
 if [ -f "$3/run" ]; then 
-        echo -n -e " ${bldblk}> cleaning generated scripts...${txtrst}"
+        echo -n -e "$message_color \
+cleaning generated scripts... \
+$reset_color"
         rm -f $3/run
-        echo -e "${bldgrn}done.${txtrst}"
+        echo -e "$done_color\
+ done \
+$reset_color"
 fi
 

@@ -1,6 +1,11 @@
 
 .PHONY: link
 link:
-	@echo -n "Linking... " 
+	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
+		$(BUILDER_ROOT)/wizards/colors.sh \
+		"message_done" \
+		" Linking... " 
 	@$(LINKER) $(CPP_OBJ_FILES) $(CUDA_OBJ_FILES) -o $(BIN_PATH)/$(PROJECT_NAME) $(LINKER_FLAGS) 
-	@echo "Done"
+	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
+		$(BUILDER_ROOT)/wizards/colors.sh \
+		"done" \
