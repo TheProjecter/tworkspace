@@ -2,21 +2,31 @@
 
 DEV_ROOT="$1"
 SOURCES="$2"
-NAME="$3"
+NAME="$4"
+
+if [ "$3" != "" ]; then 
+        source $3
+fi
 
 if [ "$DEV_ROOT" == "" ]; then 
-        echo "Error: the development directory is not specified.";
+        echo -e "$error_color \
+Error: the development directory is not specified.\
+$reset_color";
         exit
 fi
 
 if [ "$SOURCES" == "" ]; then 
-        echo "Error: the sources directory is not specified.";
+        echo -e "$error_color \
+Error: the sources directory is not specified.\
+$reset_color";
         exit
 fi
 
 if [ "$NAME" == "" ] ; then
-        echo -n "class NAME: ";
+        echo -n -e "$message_color \
+class NAME: ";
         read NAME
+        echo -e $reset_color
 fi 
 
 HPP_FILE=$DEV_ROOT/$SOURCES/$NAME.hpp
