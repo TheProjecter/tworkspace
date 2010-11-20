@@ -64,6 +64,7 @@ echo "#ADDED BY WIZARD" > $MAKEFILE
 echo "CPP_FILES += "$NAME".cpp" >> $MAKEFILE
 echo "" >> $MAKEFILE
 cat $MAKEFILE"_tmp" >> $MAKEFILE
+rm $MAKEFILE"_tmp"
 
 touch $DEV_ROOT/$SOURCES/$NAME.cpp
 
