@@ -35,8 +35,9 @@ $(SOURCES) :
 		$(BUILDER_ROOT)/wizards/colors.sh \
 		"message" \
 		"Build "$@
-	@make --no-print-directory -C $@ 
+	@make -C $@ 
 
+#@make --no-print-directory -C $@ 
 include $(BUILDER_ROOT)/core/clean.mk
 include $(BUILDER_ROOT)/core/setup.mk
 include $(BUILDER_ROOT)/core/install.mk
