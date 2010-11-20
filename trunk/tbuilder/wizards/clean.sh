@@ -2,11 +2,6 @@
 
 if [ "$4" != "" ]; then 
         source $4
-        warning_color=${txtblu}
-        error_color=${txtred}
-        message_color=${bldblk}
-        reset_color=${txtrst}
-        done_color=${undwht}${badgrn}
 fi
 
 if [ -d "$1" ]; then 

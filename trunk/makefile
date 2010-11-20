@@ -4,12 +4,24 @@ BUILDER_DIR 	= $(shell pwd)/$(BUILDER_NAME)
 
 .PHONY: default
 default:
-	@echo "You shell use one of the following ways to make a project"
-	@echo "make project name=\"NAME_OF_PROJECT\""
+	@$(BUILDER_DIR)/wizards/colored_echo.sh \
+		$(BUILDER_DIR)/wizards/colors.sh \
+		"warning" \
+		"You should use one of the following ways to make a project"
+	@$(BUILDER_DIR)/wizards/colored_echo.sh \
+		$(BUILDER_DIR)/wizards/colors.sh \
+		"message" \
+		"make project name=\"NAME_OF_PROJECT\""
 
 .PHONY: project
 project:
-	@/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh $(BUILDER_DIR) $(shell pwd) $(name) $(type)
+	@/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh \
+		$(BUILDER_DIR) \
+		$(shell pwd) \
+		$(BUILDER_DIR)/wizards/colors.sh \
+		$(name) \
+		$(type)
+
 
 .PHONY: tarball
 tarball:

@@ -7,10 +7,6 @@ COLORS=$3
 
 if [ "$COLORS" != "" ]; then 
         source $COLORS
-        warning_color=${txtblu}
-        error_color=${txtred}
-        message_color=${bldblk}
-        reset_color=${txtrst}
 fi
 
 if [ "$BUILDER_DIR" == "" ]; then 

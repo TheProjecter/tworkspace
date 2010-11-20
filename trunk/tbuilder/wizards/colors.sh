@@ -33,3 +33,8 @@ bakcyn='\e[46m'   # Cyan
 bakwht='\e[47m'   # White
 txtrst='\e[0m'    # Text Reset
 
+        warning_color=${txtblu}
+        error_color=${txtred}
+        message_color=${bldblk}
+        done_color=${undwht}${badgrn}
+        reset_color=${txtrst}

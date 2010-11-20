@@ -2,17 +2,25 @@
 
 BUILDER_DIR="$1"
 PREFIX="$2"
-NAME="$3"
-TYPE="$4"
+NAME="$4"
+TYPE="$5"
+
+if [ -f "$3" ]; then 
+        source $3
+fi
 
 if [ "$BUILDER_DIR" == "" ]; then 
-        echo "Error: the builder directory is not specified.";
+        echo -e "${error_color} \
+Error: the builder directory is not specified."
+${reset_color}
         exit
 fi
 
 if [ "$NAME" == "" ] ; then
-        echo -n "Enter project name: ";
+        echo -n -e "${message_color} \
+Enter project name: ";
         read NAME
+        echo -e ${reset_color}
 fi 
 
 if [ "$PREFIX" == "" ] ; then 
@@ -22,7 +30,9 @@ fi
 TYPE=cpp
 
 if [ "$TYPE" == "" ]; then 
-        echo -n "Enter project type: (CPP|systemc)";
+        echo -n -e "${message_color} \
+Enter project type: (CPP|systemc)"\
+${reset_color};
         read TYPE
         if [ "$TYPE" == "" ]; then 
                 TYPE=cpp
