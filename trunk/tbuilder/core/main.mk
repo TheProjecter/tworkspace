@@ -34,7 +34,7 @@ $(SOURCES) :
 	@$(BUILDER_ROOT)/wizards/colored_echo.sh \
 		$(BUILDER_ROOT)/wizards/colors.sh \
 		"message" \
-		"Build "$@
+		"Building "$@
 	@make -C $@ 
 
 #@make --no-print-directory -C $@ 

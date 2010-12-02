@@ -5,6 +5,20 @@ CUDA_FILES +=
 
 CPP_COMPILER_FLAGS += \
                       -Wall \
+		      -pedantic \
+		      -Wformat \
+		      -Wcomment \
+		      -Werror \
+		      -Winline \
+		      -Wredundant-decls \
+		      -Wmissing-declarations \
+		      -Waggregate-return \
+		      -Wconversion \
+		      -Wwrite-strings \
+		      -Wcast-align \
+		      -Wcast-qual \
+		      -Wpointer-arith \
+		      -Wshadow \
 
 CUDA_COMPILER_FLAGS     += \
 
