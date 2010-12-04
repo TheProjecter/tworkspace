@@ -16,6 +16,8 @@ endif
 
 ifneq ($(debug),enable)
 DEBUGER = 
+else
+CPP_COMPILER_FLAGS += -ggdb
 endif
 
 .PHONY: exe

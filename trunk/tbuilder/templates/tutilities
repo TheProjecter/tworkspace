@@ -13,7 +13,20 @@ enum error_t
         INVALID_PROCESSOR_ID
 };
 
-error_t set_active_processor(const int& cpu)
+error_t set_active_processor(const int&) throw();
+
+std::string get_path() throw();
+
+template <typename T>
+error_t read_file(const std::string& s, T& a) throw();
+
+template <typename T>
+error_t read_file(const std::string& s, T& a) throw();
+
+template <typename T>
+error_t print_r(const T* a, const T* b) throw();
+
+error_t set_active_processor(const int& cpu) throw()
 {
         size_t size = 0;
         int num_cpus = 4;
@@ -28,7 +41,7 @@ error_t set_active_processor(const int& cpu)
         return SUCCESS;
 }
 
-std::string get_path()
+std::string get_path() throw()
 {
         const char* c = std::getenv("DEV_ROOT");
         if(0 == c) {
@@ -54,7 +67,8 @@ error_t read_file(const std::string& s, T& a) throw()
 }
 
 template <typename T>
-error_t print_r(const T* a, const T* b) {
+error_t print_r(const T* a, const T* b) throw()
+{
         std::copy(a, b, std::ostream_iterator<T>(std::cout, " "));
         std::cout << std::endl;
         return SUCCESS;
