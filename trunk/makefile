@@ -1,37 +1,41 @@
 
-BUILDER_NAME	= tbuilder
-BUILDER_DIR 	= $(shell pwd)/$(BUILDER_NAME)
+BLDR_DIR	:= $(shell pwd)/tbuilder
 
-.PHONY: default
-default:
-	@$(BUILDER_DIR)/wizards/colored_echo.sh \
-		$(BUILDER_DIR)/wizards/colors.sh \
-		"warning" \
-		"You should use one of the following ways to make a project"
-	@$(BUILDER_DIR)/wizards/colored_echo.sh \
-		$(BUILDER_DIR)/wizards/colors.sh \
-		"message" \
-		"make project name=\"NAME_OF_PROJECT\""
+MKF_DIR		:= $(BLDR_DIR)/core
+TMPL_DIR	:= $(BLDR_DIR)/templates
+
+include $(MKF_DIR)/macros.mk
+
+.PHONY: wrong_arguments
+wrong_arguments:
+	@$(INFO) " You should type one of the the followings:" 
+	@$(ENDL)
+	@$(CODE) " make project" 
+	@$(INFO) " - to create new project"
+	@$(ENDL)
+	@$(CODE) " make clean" 
+	@$(ENDL)
+	@$(CODE) " make remove" 
+	@$(INFO) " - to remove one of the projects"
+	@$(ENDL)
+	@$(CODE) " make tar" 
+	@$(INFO) " - to tar one of the projects"
+	@$(ENDL)
 
 .PHONY: project
 project:
-	@/bin/bash $(BUILDER_DIR)/wizards/project_creation.sh \
-		$(BUILDER_DIR) \
-		$(shell pwd) \
-		$(BUILDER_DIR)/wizards/colors.sh \
-		$(name) \
-		$(type)
+	@$(INFO) " Enter new project name: "
+	@read P; if [ ! -d "$${P}" ]; then mkdir -p $${P}; echo "export BLDR_DIR	:= $(BLDR_DIR)\n \ninclude $(MKF_DIR)/macros.mk" > $${P}/makefile; cat $(TMPL_DIR)/first_time_makefile >> $${P}/makefile; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " project was created successfully."; echo; else echo " There is another project with the name $${P}."; fi
 
-
-.PHONY: tarball
-tarball:
-	@tar cjf $(name).tbz2 $(name) $(BUILDER_NAME)
+.PHONY: remove
+remove: clean
 
 .PHONY: clean
-clean:
-	@rm -fr *.tbz *.tar.*
-	@rm -fr $(BUILDER_DIR)/bin
-	@rm -fr $(BUILDER_DIR)/obj
-	@rm -fr $(BUILDER_DIR)/dep
-	@rm -fr $(BUILDER_DIR)/tst
+clean: 
+	@/bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " Enter the name of project you want to remove: "
+	@read P; if [ -d "$${P}" ]; then rm -fr $${P}; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " was removed successfully."; echo; else /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " There is no project named "; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" $${P}; echo; fi
 
+.PHONY: tar
+tar: 
+	@/bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " Enter the name of project you want to tar: "
+	@read P; if [ -d "$${P}" ]; then if [ -d "$${P}/src" ]; then make -C $${P} clean --no-print-directory; cp $${P}/makefile __$${P}__tmp_makefile; sed s/export\ MKF_DIR\.\*/export\ MKF_DIR\:\=\$$\(shell\ pwd\)\\/\.\.\\/tbuilder\\/core/ __$${P}__tmp_makefile > $${P}/makefile; tar cjf $${P}.tar.bz2 $${P} $(notdir $(BLDR_DIR)); cp __$${P}__tmp_makefile $${P}/makefile; rm __$${P}__tmp_makefile; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}.tar.bz2"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " was created successfully."; echo; else  /bin/bash $(MKF_DIR)/scripts/code.sh $(MKF_DIR)/scripts/ "  $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " is an empty project, there is no wise to create the tar of it. "; echo; fi; else  /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " There is no project named "; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" $${P}; echo; fi
