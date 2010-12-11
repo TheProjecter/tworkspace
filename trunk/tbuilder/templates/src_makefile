@@ -1,0 +1,11 @@
+
+CPP_FILES 	+= \
+	     	main.cpp \
+
+CFLAGS	  	+= -I.
+
+LFLAGS	  	+= 
+
+PROJECT_NAME	= $(notdir $(shell pwd))
+
+include $(MKF_DIR)/exe.mk

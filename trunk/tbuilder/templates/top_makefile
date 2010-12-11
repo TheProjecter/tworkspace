@@ -1,0 +1,9 @@
+
+export DEV_ROOT := $(shell pwd)
+export BIN_DIR	:= $(DEV_ROOT)/bin
+export OBJ_DIR	:= $(DEV_ROOT)/obj
+export LIB_DIR	:= $(DEV_ROOT)/lib
+export DEP_DIR	:= $(DEV_ROOT)/dep
+
+include $(MKF_DIR)/main.mk
+include $(MKF_DIR)/clean.mk
