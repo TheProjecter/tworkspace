@@ -30,3 +30,7 @@ $(LIB_NAME) : $(OBJ_PATHS)
 	@$(INFO) " LD $(@F) ... "
 	@g++ $(LFLAGS) --shared $^ -o $@
 	@$(DONE)
+
+
+
+
