@@ -20,8 +20,11 @@ LIB_NAME	=  $(LIB_DIR)/lib$(PROJECT_NAME).so
 
 include $(MKF_DIR)/macros.mk
 
-.PHONY: lib
-lib : $(DEPS_PATHS) $(LIB_NAME)
+.PHONY: lib ntg
+lib : ntg $(DEPS_PATHS) $(LIB_NAME)
+
+ntg:
+	@donothing=1
 
 
 include $(MKF_DIR)/compile.mk

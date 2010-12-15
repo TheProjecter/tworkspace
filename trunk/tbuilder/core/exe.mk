@@ -18,15 +18,21 @@ SHELL		= /bin/sh
 
 include $(MKF_DIR)/macros.mk
 
-.PHONY: exe run
-exe : $(DEPS_PATHS) run $(BIN_DIR)/$(PROJECT_NAME)
+.PHONY: exe ntg
+exe : $(DEPS_PATHS) $(DEV_ROOT)/run ntg $(BIN_DIR)/$(PROJECT_NAME)
+
+ntg:
+	@donothing=1
+
+$(DEV_ROOT)/run :  
+	@echo "#!/bin/bash" > $(DEV_ROOT)/run
+	@echo "export LD_LIBRARY_PATH=$(LIB_DIR)" >> $(DEV_ROOT)/run
+	@chmod a+x  $(DEV_ROOT)/run
 
 include $(MKF_DIR)/compile.mk
 
-run :  
-	@echo $(BIN_DIR)/$(PROJECT_NAME) >> $(DEV_ROOT)/run
-
 $(BIN_DIR)/$(PROJECT_NAME) : $(OBJ_PATHS) 
+	@echo $@ >> $(DEV_ROOT)/run
 	@$(INFO) " LD $(@F) ... "
 	@g++ $(LFLAGS) $^ -o $@ 
 	@$(DONE)

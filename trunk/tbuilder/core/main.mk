@@ -19,14 +19,7 @@ SHELL		= /bin/sh
 PROJECTS_PATHS 	= $(addprefix src/,$(PROJECTS))
 
 .PHONY: all
-all 		: $(dev_root)/run $(PROJECTS_PATHS)
-
-$(dev_root)/run :  
-	@$(INFO) " GEN run ... "
-	@echo "#!/bin/bash" > $(DEV_ROOT)/run
-	@echo "export LD_LIBRARY_PATH=$(LIB_DIR)" >> $(DEV_ROOT)/run
-	@chmod a+x  $(DEV_ROOT)/run
-	@$(DONE)
+all 		: $(PROJECTS_PATHS)
 
 .PHONY: $(PROJECTS_PATHS)
 $(PROJECTS_PATHS) : 
@@ -35,4 +28,24 @@ $(PROJECTS_PATHS) :
 	@mkdir -p $(LIB_DIR)
 	@mkdir -p $(DEP_DIR)/$(notdir $@)
 	@make -C $@ --no-print-directory
+
+TEST_PATHS	:= $(addprefix $(DEV_ROOT)/tst/,$(TESTS))
+
+.PHONY: test
+test: $(TEST_PATHS)
+
+.PHONY: $(TEST_PATHS)
+$(TEST_PATHS) : 
+	@make -C $@ --no-print-directory
+
+.PHONY: cow
+cow:
+	@echo "  ^__^ "
+	@echo "  (oo)\_______ "
+	@echo "  (__)\        )\/\ " 
+	@echo "       ||----w | "
+	@echo "       ||     || "
+
+
+
 

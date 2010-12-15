@@ -1,4 +1,15 @@
 
+TESTS: 		:=
+
+export DEV_ROOT := $(shell pwd)
+export BIN_DIR	:= $(DEV_ROOT)/bin
+export OBJ_DIR	:= $(DEV_ROOT)/obj
+export LIB_DIR	:= $(DEV_ROOT)/lib
+export DEP_DIR	:= $(DEV_ROOT)/dep
+
+include $(MKF_DIR)/main.mk
+include $(MKF_DIR)/clean.mk
+
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation, either version 3 of the License, or
@@ -14,11 +25,3 @@
 #
 #   Author Tigran Hovhannisyan - tigran.co.cc
 
-export DEV_ROOT := $(shell pwd)
-export BIN_DIR	:= $(DEV_ROOT)/bin
-export OBJ_DIR	:= $(DEV_ROOT)/obj
-export LIB_DIR	:= $(DEV_ROOT)/lib
-export DEP_DIR	:= $(DEV_ROOT)/dep
-
-include $(MKF_DIR)/main.mk
-include $(MKF_DIR)/clean.mk
