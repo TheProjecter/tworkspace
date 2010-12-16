@@ -19,6 +19,6 @@ TMPL_DIR	:= $(BLDR_DIR)/templates
 
 .PHONY: default
 default:
-	@$(INFO) " Enter your firs sub-project name: "; read P; mkdir -p src/$${P}; cp $(TMPL_DIR)/src_makefile src/$${P}/makefile; cp $(TMPL_DIR)/src_main src/$${P}/main.cpp; echo "PROJECTS 	:= $${P}\n\nexport MKF_DIR  := $(MKF_DIR)\n" > makefile; cat $(TMPL_DIR)/top_makefile >> makefile; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " was created successfully."; echo; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " makefile was replaced"; echo;
+	@$(INFO) " Enter your firs sub-project name: "; read P; mkdir -p src/$${P}; cp $(TMPL_DIR)/src_makefile src/$${P}/makefile; cp $(TMPL_DIR)/src_main src/$${P}/main.cpp; echo "PROJECTS 	+= $${P}\n\nBLDR_DIR  := $(BLDR_DIR)\nexport MKF_DIR  := $(BLDR_DIR)/core\n" > makefile; cat $(TMPL_DIR)/top_makefile >> makefile; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " was created successfully."; echo; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " makefile was replaced"; echo;
 
 
