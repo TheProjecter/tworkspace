@@ -23,6 +23,10 @@ all 		: $(PROJECTS_PATHS)
 
 .PHONY: $(PROJECTS_PATHS)
 $(PROJECTS_PATHS) : 
+	@echo "#!/bin/bash" > $(DEV_ROOT)/run
+	@echo "export LD_LIBRARY_PATH=$(LIB_DIR)" >> $(DEV_ROOT)/run
+	@echo $(BIN_DIR)/$(notdir $(PROJECTS_PATHS)) >> $(DEV_ROOT)/run
+	@chmod a+x  $(DEV_ROOT)/run
 	@mkdir -p $(OBJ_DIR)/$(notdir $@)
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(LIB_DIR)
