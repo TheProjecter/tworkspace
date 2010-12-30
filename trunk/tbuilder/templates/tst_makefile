@@ -1,13 +1,33 @@
+DEV_ROOT := $(shell pwd)
+BIN_DIR	:= $(DEV_ROOT)/bin
+OBJ_DIR	:= $(DEV_ROOT)/obj
+LIB_DIR	:= $(DEV_ROOT)/lib
+DEP_DIR	:= $(DEV_ROOT)/dep
 
-export DEV_ROOT := $(shell pwd)
-export BIN_DIR	:= $(DEV_ROOT)/bin
-export OBJ_DIR	:= $(DEV_ROOT)/obj
-export LIB_DIR	:= $(DEV_ROOT)/lib
-export DEP_DIR	:= $(DEV_ROOT)/dep
+CPP_FILES 	+= main.cpp
+CFLAGS	  	+= -I.
+LFLAGS	  	+= 
+PROJECT_NAME	= $(notdir $(shell pwd))
 
-include $(MKF_DIR)/main.mk
+SHELL		= /bin/sh
+
+.PHONY: all prepare
+all : prepare exe
+	@echo "project_path=$(DEV_ROOT)" >> run
+	@echo "source $(BLDR_DIR)/core/scripts/colors.sh" >> run
+	@cat $(BLDR_DIR)/templates/tst_run >> run
+
+prepare : 
+	@echo "#!/bin/bash" > $(DEV_ROOT)/run
+	@echo "export LD_LIBRARY_PATH=$(LIB_DIR)" >> $(DEV_ROOT)/run
+	@echo $(BIN_DIR)/$(PROJECT_NAME) >> $(DEV_ROOT)/run
+	@chmod a+x  $(DEV_ROOT)/run
+	@mkdir -p $(OBJ_DIR)/$(PROJECT_NAME)
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(LIB_DIR)
+
+include $(MKF_DIR)/exe.mk
 include $(MKF_DIR)/clean.mk
-include $(MKF_DIR)/sub_project.mk
 
 #
 # Copyright © 2010 Tigran Hovhannisyan, Armenia

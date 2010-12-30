@@ -21,6 +21,7 @@ DEPS_PATHS	:= $(addprefix $(DEP_DIR)/$(PROJECT_NAME)/,$(DEPS))
 
 .PHONY: $(DEPS_PATHS)
 $(DEPS_PATHS) 	: 
+	@mkdir -p $(@D)
 	@g++ $(CFLAGS) -MM $(subst .d,.cpp,$(@F)) \
 		-MT "$(OBJ_DIR)/$(PROJECT_NAME)/$(subst .d,.o,$(@F))" -o $@
 

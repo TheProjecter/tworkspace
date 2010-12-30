@@ -1,0 +1,33 @@
+
+project_dir=${project_path##*/}
+
+gouts=`ls $project_path/outputs/`
+result=result.txt
+
+status=pass
+echo > $result
+for i in $gouts
+do
+        if [ ${i: -4} = "gout" ]; then
+                output=${i: 0: `expr length $i`-5}
+                echo -n $output >> $result
+                if [ -a "outputs/$output.out" ]; then
+                        mkdir -p diff;
+                        diff outputs/$output.out outputs/$i > diff/$output ;
+                        ___l=`wc -l diff/$output`;
+                        if [ "0" = ${___l% *} ]; then
+                             echo " - pass" >> $result
+                        else 
+                             echo " - fail" >> $result   
+                             status=fail
+                        fi
+                fi
+        fi
+done
+
+echo -e -n ${message_color}$project_dir" - "${reset_color}
+if [ "fail" = "$status" ]; then
+        echo -e ${fail_color}fail${reset_color}
+else
+        echo -e ${pass_color}pass${reset_color}
+fi

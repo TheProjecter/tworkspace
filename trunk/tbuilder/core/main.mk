@@ -31,8 +31,9 @@ $(PROJECTS_PATHS) :
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(LIB_DIR)
 	@mkdir -p $(DEP_DIR)/$(notdir $@)
-	@make -C $@ --no-print-directory
+	@make -C $@
 
+#@make -C $@ --no-print-directory
 TEST_PATHS	:= $(addprefix $(DEV_ROOT)/tst/,$(TESTS))
 
 .PHONY: test
@@ -41,6 +42,7 @@ test: $(TEST_PATHS)
 .PHONY: $(TEST_PATHS)
 $(TEST_PATHS) : 
 	@make -C $@ --no-print-directory
+	@$(bash) $@/run
 
 .PHONY: cow
 cow:

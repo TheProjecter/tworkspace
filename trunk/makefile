@@ -41,17 +41,17 @@ wrong_arguments:
 .PHONY: project
 project:
 	@$(INFO) " Enter new project name: "
-	@read P; if [ ! -d "$${P}" ]; then mkdir -p $${P}; echo "export BLDR_DIR	:= $(BLDR_DIR)\n \ninclude $(MKF_DIR)/macros.mk" > $${P}/makefile; cat $(TMPL_DIR)/first_time_makefile >> $${P}/makefile; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " project was created successfully."; echo; else echo " There is another project with the name $${P}."; fi
+	@read P; if [ ! -d "$${P}" ]; then mkdir -p $${P}; echo "export BLDR_DIR	:= $(BLDR_DIR)\n \ninclude $(MKF_DIR)/macros.mk" > $${P}/makefile; cat $(TMPL_DIR)/first_time_makefile >> $${P}/makefile; $(CODE) " $${P}"; $(INFO) " project was created successfully."; echo; else $(ERROR) " There is another project with the name "; $(CODE) $${P}; fi
 
 .PHONY: remove
 remove: clean
 
 .PHONY: clean
 clean: 
-	@/bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " Enter the name of project you want to remove: "
-	@read P; if [ -d "$${P}" ]; then rm -fr $${P}; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " was removed successfully."; echo; else /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " There is no project named "; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" $${P}; echo; fi
+	@$(INFO) " Enter the name of project you want to remove: "
+	@read P; if [ -d "$${P}" ]; then rm -fr $${P}; $(CODE) " $${P}"; $(INFO) " was removed successfully."; echo; else if [ "$${P}" = "" ]; then $(ERROR) " You didn't type the name of the Project"; else $(ERROR) " There is no project named "; $(CODE) "$${P}"; $(ENDL); fi; fi
 
 .PHONY: tar
 tar: 
-	@/bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " Enter the name of project you want to tar: "
-	@read P; if [ -d "$${P}" ]; then if [ -d "$${P}/src" ]; then make -C $${P} clean --no-print-directory; cp $${P}/makefile __$${P}__tmp_makefile; sed s/export\ MKF_DIR\.\*/export\ MKF_DIR\:\=\$$\(shell\ pwd\)\\/\.\.\\/tbuilder\\/core/ __$${P}__tmp_makefile > $${P}/makefile; tar cjf $${P}.tar.bz2 $${P} $(notdir $(BLDR_DIR)); cp __$${P}__tmp_makefile $${P}/makefile; rm __$${P}__tmp_makefile; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" " $${P}.tar.bz2"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " was created successfully."; echo; else  /bin/bash $(MKF_DIR)/scripts/code.sh $(MKF_DIR)/scripts/ "  $${P}"; /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " is an empty project, there is no wise to create the tar of it. "; echo; fi; else  /bin/bash $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ " There is no project named "; /bin/bash $(MKF_DIR)/scripts/code.sh "$(MKF_DIR)/scripts/" $${P}; echo; fi
+	@$(INFO) " Enter the name of project you want to tar: "
+	@read P; if [ -d "$${P}" ]; then if [ -d "$${P}/src" ]; then make -C $${P} clean --no-print-directory; cp $${P}/makefile __$${P}__tmp_makefile; sed s/export\ MKF_DIR\.\*/export\ MKF_DIR\:\=\$$\(shell\ pwd\)\\/\.\.\\/tbuilder\\/core/ __$${P}__tmp_makefile > $${P}/makefile; tar cjf $${P}.tar.bz2 $${P} $(notdir $(BLDR_DIR)); cp __$${P}__tmp_makefile $${P}/makefile; rm __$${P}__tmp_makefile; $(CODE) " $${P}.tar.bz2"; $(INFO) " was created successfully."; echo; else  $(CODE) "  $${P}"; $(INFO) " is an empty project, there is no wise to create the tar of it. "; echo; fi; else  $(INFO) " There is no project named "; $(CODE) $${P}; echo; fi

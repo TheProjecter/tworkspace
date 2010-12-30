@@ -54,4 +54,5 @@ message_color=${txtcyn}
 done_color=${txtgrn} 
 code_color=${bldblk}
 reset_color=${txtrst}
-
+fail_color=${txtred}
+pass_color=${txtgrn} 

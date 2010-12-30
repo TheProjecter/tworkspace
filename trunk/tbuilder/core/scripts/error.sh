@@ -16,4 +16,4 @@
 #   Author Tigran Hovhannisyan - tigran.co.cc
 
 source $1colors.sh
-echo -e -n ${code_color}$2${reset_color}
+echo -e -n ${error_color}$2${reset_color}
