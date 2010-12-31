@@ -40,7 +40,7 @@ TEST_PATHS	:= $(addprefix $(DEV_ROOT)/tst/,$(TESTS))
 test: rm_reports $(TEST_PATHS)
 
 rm_reports: 
-	@rm $(DEV_ROOT)/test_results.txt
+	@rm -f $(DEV_ROOT)/test_results.txt
 
 .PHONY: $(TEST_PATHS)
 $(TEST_PATHS) : 
