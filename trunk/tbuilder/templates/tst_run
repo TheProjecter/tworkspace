@@ -25,9 +25,12 @@ do
         fi
 done
 
-echo -e -n ${message_color}$project_dir" - "${reset_color}
+test_result="${message_color}$project_dir - ${reset_color}"
 if [ "fail" = "$status" ]; then
-        echo -e ${fail_color}fail${reset_color}
+        test_result+="${fail_color}fail${reset_color}"
 else
-        echo -e ${pass_color}pass${reset_color}
+        test_result+="${pass_color}pass${reset_color}"
 fi
+
+echo -e " > $test_result"
+echo -e " > $test_result" > $PROJECT_DIR/test_results.txt
