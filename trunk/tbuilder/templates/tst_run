@@ -1,5 +1,5 @@
 
-project_dir=${project_path##*/}
+test_name=${project_path##*/}
 
 gouts=`ls $project_path/outputs/`
 result=$project_path/result.txt
@@ -25,12 +25,15 @@ do
         fi
 done
 
-test_result="${message_color}$project_dir - ${reset_color}"
+test_result="$test_name - "
+echo -e -n " > ${message_color}$test_name - ${reset_color}"
 if [ "fail" = "$status" ]; then
-        test_result+="${fail_color}fail${reset_color}"
+        echo -e "${fail_color}fail${reset_color}"
+        test_result+="fail"
 else
-        test_result+="${pass_color}pass${reset_color}"
+        echo -e "${pass_color}pass${reset_color}"
+        test_result+="pass"
 fi
 
-echo -e " > $test_result"
-echo -e " > $test_result" > $PROJECT_DIR/test_results.txt
+echo "$test_result" >> $project_dir/test_results.txt
+

@@ -36,8 +36,11 @@ $(PROJECTS_PATHS) :
 #@make -C $@ --no-print-directory
 TEST_PATHS	:= $(addprefix $(DEV_ROOT)/tst/,$(TESTS))
 
-.PHONY: test
-test: $(TEST_PATHS)
+.PHONY: test rm_reports
+test: rm_reports $(TEST_PATHS)
+
+rm_reports: 
+	@rm $(DEV_ROOT)/test_results.txt
 
 .PHONY: $(TEST_PATHS)
 $(TEST_PATHS) : 
