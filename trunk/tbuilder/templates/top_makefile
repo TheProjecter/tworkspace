@@ -1,13 +1,13 @@
 
-export DEV_ROOT := $(shell pwd)
-export BIN_DIR	:= $(DEV_ROOT)/bin
-export OBJ_DIR	:= $(DEV_ROOT)/obj
-export LIB_DIR	:= $(DEV_ROOT)/lib
-export DEP_DIR	:= $(DEV_ROOT)/dep
+export product_root := $(shell pwd)
+export bin_dir	:= $(product_root)/bin
+export obj_dir	:= $(product_root)/obj
+export lib_dir	:= $(product_root)/lib
+export dep_dir	:= $(product_root)/dep
 
-include $(MKF_DIR)/main.mk
-include $(MKF_DIR)/clean.mk
-include $(MKF_DIR)/sub_project.mk
+include $(core_path)/main.mk
+include $(core_path)/clean.mk
+include $(core_path)/sub_project.mk
 
 #
 # Copyright © 2010 Tigran Hovhannisyan, Armenia

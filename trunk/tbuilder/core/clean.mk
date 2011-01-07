@@ -14,8 +14,14 @@
 #
 #   Author Tigran Hovhannisyan - tigran.co.cc
 
-include $(MKF_DIR)/macros.mk
+include $(core_path)/macros.mk
 
 .PHONY: clean
 clean:
-	@UNUSED="$(BIN_DIR) $(OBJ_DIR) $(LIB_DIR) $(DEP_DIR) $(DEV_ROOT)/run $(DEV_ROOT)/gmon.out"; cleaned="no"; for i in $${UNUSED}; do if [ -e "$${i}" ]; then cleaned="yap"; rm -fr $${i}; fi; done; if [ "$${cleaned}" = "yap" ]; then $(INFO) "Cleaned "; $(ENDL); fi; 
+	@_ROOT="${product_root}";if [ "$(test_root)" != "" ]; then _ROOT=$(test_root); fi; UNUSED="$(dep_dir) $(bin_dir) $(obj_dir) $(lib_dir) $${_ROOT}/run $${_ROOT}/gmon.out"; cleaned="no"; for i in $${UNUSED}; do if [ -e "$${i}" ]; then cleaned="yap"; echo $$i; rm -fr $${i}; fi; done; if [ "$${cleaned}" = "yap" ]; then $(CODE) "$(project_name)"; $(INFO) " - cleaned "; $(ENDL); fi; 
+
+
+.PHONY: distclean
+distclean: clean
+	@for i in ${test_paths}; do make -C $$i clean --no-print-directory; done;
+	@rm -f ${product_root}/test_results.txt

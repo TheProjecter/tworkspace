@@ -14,20 +14,20 @@
 #
 #   Author Tigran Hovhannisyan - tigran.co.cc
 
-OBJ_FILES 	:= $(subst .cpp,.o,$(CPP_FILES)) 
-OBJ_PATHS	:= $(addprefix $(OBJ_DIR)/$(PROJECT_NAME)/,$(OBJ_FILES)) 
-DEPS		:= $(subst .cpp,.d,$(CPP_FILES))
-DEPS_PATHS	:= $(addprefix $(DEP_DIR)/$(PROJECT_NAME)/,$(DEPS))
+obj_files 	:= $(subst .cpp,.o,$(cpp_files)) 
+obj_paths	:= $(addprefix $(obj_dir)/$(project_name)/,$(obj_files)) 
+dep_files	:= $(subst .cpp,.d,$(cpp_files))
+deps_paths	:= $(addprefix $(dep_dir)/$(project_name)/,$(dep_files))
 
-.PHONY: $(DEPS_PATHS)
-$(DEPS_PATHS) 	: 
+.PHONY: $(deps_paths)
+$(deps_paths) 	: 
 	@mkdir -p $(@D)
-	@g++ $(CFLAGS) -MM $(subst .d,.cpp,$(@F)) \
-		-MT "$(OBJ_DIR)/$(PROJECT_NAME)/$(subst .d,.o,$(@F))" -o $@
+	@g++ $(cflags) -MM $(subst .d,.cpp,$(@F)) \
+		-MT "$(obj_dir)/$(project_name)/$(subst .d,.o,$(@F))" -o $@
 
--include $(DEPS_PATHS)
+-include $(deps_paths)
 
-$(OBJ_PATHS)	: $(notdir $(subst .o,.cpp,$@)) 
+$(obj_paths)	: $(notdir $(subst .o,.cpp,$@)) 
 	@$(INFO) " CC $(@F) ... "
-	@g++ -c $(CFLAGS) $(notdir $*.cpp) -o $@
+	@g++ -c $(cflags) $(notdir $*.cpp) -o $@
 	@$(DONE)

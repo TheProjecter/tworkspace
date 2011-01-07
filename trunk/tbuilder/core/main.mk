@@ -16,34 +16,34 @@
 
 SHELL		= /bin/sh
 
-PROJECTS_PATHS 	= $(addprefix src/,$(PROJECTS))
+projects_paths 	= $(addprefix src/,$(projects))
 
 .PHONY: all
-all 		: $(PROJECTS_PATHS)
+all 		: $(projects_paths)
 
-.PHONY: $(PROJECTS_PATHS)
-$(PROJECTS_PATHS) : 
-	@echo "#!/bin/bash" > $(DEV_ROOT)/run
-	@echo "export LD_LIBRARY_PATH=$(LIB_DIR)" >> $(DEV_ROOT)/run
-	@echo $(BIN_DIR)/$(notdir $(PROJECTS_PATHS)) >> $(DEV_ROOT)/run
-	@chmod a+x  $(DEV_ROOT)/run
-	@mkdir -p $(OBJ_DIR)/$(notdir $@)
-	@mkdir -p $(BIN_DIR)
-	@mkdir -p $(LIB_DIR)
-	@mkdir -p $(DEP_DIR)/$(notdir $@)
+.PHONY: $(projects_paths)
+$(projects_paths) : 
+	@echo "#!/bin/bash" > $(product_root)/run
+	@echo "export LD_LIBRARY_PATH=$(lib_dir)" >> $(product_root)/run
+	@echo $(bin_dir)/$(notdir $(projects_paths)) >> $(product_root)/run
+	@chmod a+x  $(product_root)/run
+	@mkdir -p $(obj_dir)/$(notdir $@)
+	@mkdir -p $(bin_dir)
+	@mkdir -p $(lib_dir)
+	@mkdir -p $(dep_dir)/$(notdir $@)
 	@make -C $@
 
 #@make -C $@ --no-print-directory
-TEST_PATHS	:= $(addprefix $(DEV_ROOT)/tst/,$(TESTS))
+test_paths	:= $(addprefix $(product_root)/tst/,$(tests))
 
 .PHONY: test rm_reports
-test: rm_reports $(TEST_PATHS)
+test: rm_reports $(test_paths)
 
 rm_reports: 
-	@rm -f $(DEV_ROOT)/test_results.txt
+	@rm -f $(product_root)/test_results.txt
 
-.PHONY: $(TEST_PATHS)
-$(TEST_PATHS) : 
+.PHONY: $(test_paths)
+$(test_paths) : 
 	@make -C $@ --no-print-directory
 	@$(bash) $@/run
 
@@ -54,7 +54,4 @@ cow:
 	@echo "  (__)\        )\/\ " 
 	@echo "       ||----w | "
 	@echo "       ||     || "
-
-
-
 

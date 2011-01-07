@@ -1,34 +1,34 @@
-DEV_ROOT := $(shell pwd)
-BIN_DIR	:= $(DEV_ROOT)/bin
-OBJ_DIR	:= $(DEV_ROOT)/obj
-LIB_DIR	:= $(DEV_ROOT)/lib
-DEP_DIR	:= $(DEV_ROOT)/dep
+test_root := $(shell pwd)
+bin_dir	:= $(test_root)/bin
+obj_dir	:= $(test_root)/obj
+lib_dir	:= $(test_root)/lib
+dep_dir	:= $(test_root)/dep
 
-CPP_FILES 	+= main.cpp
-CFLAGS	  	+= -I.
-LFLAGS	  	+= 
-PROJECT_NAME	= $(notdir $(shell pwd))
+cpp_files 	+= main.cpp
+cflags	  	+= -I.
+lflags	  	+= 
+project_name	= $(notdir $(shell pwd))
 
 SHELL		= /bin/sh
 
 .PHONY: all prepare
 all : prepare exe
-	@echo "project_path=$(DEV_ROOT)" >> run
-	@echo "source $(BLDR_DIR)/core/scripts/colors.sh" >> run
-	@echo "project_dir=$(PROJECT_DIR)" >> run
-	@cat $(BLDR_DIR)/templates/tst_run >> run
+	@echo "project_path=$(test_root)" >> run
+	@echo "source $(bldr_path)/core/scripts/colors.sh" >> run
+	@echo "product_root=$(product_root)" >> run
+	@cat $(bldr_path)/templates/tst_run >> run
 
 prepare : 
-	@echo "#!/bin/bash" > $(DEV_ROOT)/run
-	@echo "export LD_LIBRARY_PATH=$(LIB_DIR)" >> $(DEV_ROOT)/run
-	@echo $(BIN_DIR)/$(PROJECT_NAME) >> $(DEV_ROOT)/run
-	@chmod a+x  $(DEV_ROOT)/run
-	@mkdir -p $(OBJ_DIR)/$(PROJECT_NAME)
-	@mkdir -p $(BIN_DIR)
-	@mkdir -p $(LIB_DIR)
+	@echo "#!/bin/bash" > $(test_root)/run
+	@echo "export LD_LIBRARY_PATH=$(lib_dir)" >> $(test_root)/run
+	@echo $(bin_dir)/$(project_name) >> $(test_root)/run
+	@chmod a+x  $(test_root)/run
+	@mkdir -p $(obj_dir)/$(project_name)
+	@mkdir -p $(bin_dir)
+	@mkdir -p $(lib_dir)
 
-include $(MKF_DIR)/exe.mk
-include $(MKF_DIR)/clean.mk
+include $(core_path)/exe.mk
+include $(core_path)/clean.mk
 
 #
 # Copyright © 2010 Tigran Hovhannisyan, Armenia

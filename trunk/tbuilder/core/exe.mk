@@ -16,18 +16,18 @@
 
 SHELL		= /bin/sh
 
-include $(MKF_DIR)/macros.mk
+include $(core_path)/macros.mk
 
 .PHONY: exe ntg
-exe : $(DEPS_PATHS) ntg $(BIN_DIR)/$(PROJECT_NAME)
+exe : $(deps_paths) ntg $(bin_dir)/$(project_name)
 
 ntg:
 	@donothing=1
 
-include $(MKF_DIR)/compile.mk
+include $(core_path)/compile.mk
 
-$(BIN_DIR)/$(PROJECT_NAME) : $(OBJ_PATHS) 
+$(bin_dir)/$(project_name) : $(obj_paths) 
 	@$(INFO) " LD $(@F) ... "
-	@g++ $(LFLAGS) $^ -o $@ 
+	@g++ $(lflags) $^ -o $@ 
 	@$(DONE)
 

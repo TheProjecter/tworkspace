@@ -16,9 +16,9 @@
 
 SHELL		= /bin/sh
 
-LIB_NAME	=  $(LIB_DIR)/lib$(PROJECT_NAME).so
+lib_name	=  $(lib_dir)/lib$(project_name).so
 
-include $(MKF_DIR)/macros.mk
+include $(core_path)/macros.mk
 
 .PHONY: lib ntg
 lib : ntg $(DEPS_PATHS) $(LIB_NAME)
@@ -27,13 +27,9 @@ ntg:
 	@donothing=1
 
 
-include $(MKF_DIR)/compile.mk
+include $(core_path)/compile.mk
 	
-$(LIB_NAME) : $(OBJ_PATHS) 
+$(lib_name) : $(obj_paths) 
 	@$(INFO) " LD $(@F) ... "
-	@g++ $(LFLAGS) --shared $^ -o $@
+	@g++ $(lflags) --shared $^ -o $@
 	@$(DONE)
-
-
-
-

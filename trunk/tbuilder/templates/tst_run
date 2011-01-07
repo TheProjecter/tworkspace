@@ -35,5 +35,5 @@ else
         test_result+="pass"
 fi
 
-echo "$test_result" >> $project_dir/test_results.txt
+echo "$test_result" >> $product_root/test_results.txt
 

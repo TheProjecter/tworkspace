@@ -17,19 +17,19 @@
 bash    := /bin/bash
 
 define DONE
-$(bash) $(MKF_DIR)/scripts/done_message.sh $(MKF_DIR)/scripts/
+$(bash) $(core_path)/scripts/done_message.sh $(core_path)/scripts/
 endef
 
 define INFO
-$(bash) $(MKF_DIR)/scripts/info.sh $(MKF_DIR)/scripts/ $1
+$(bash) $(core_path)/scripts/info.sh $(core_path)/scripts/ $1
 endef
 
 define CODE
-$(bash) $(MKF_DIR)/scripts/code.sh $(MKF_DIR)/scripts/ $1
+$(bash) $(core_path)/scripts/code.sh $(core_path)/scripts/ $1
 endef
 
 define ERROR
-$(bash) $(MKF_DIR)/scripts/error.sh $(MKF_DIR)/scripts/ $1
+$(bash) $(core_path)/scripts/error.sh $(core_path)/scripts/ $1
 endef
 
 define ENDL

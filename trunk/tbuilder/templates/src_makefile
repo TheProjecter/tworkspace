@@ -1,11 +1,11 @@
 
-CPP_FILES 	+= \
+cpp_files 	+= \
 	     	main.cpp \
 
-CFLAGS	  	+= -I.
+cflags	  	+= -I.
 
-LFLAGS	  	+= 
+lflags	  	+= 
 
-PROJECT_NAME	= $(notdir $(shell pwd))
+project_name	= $(notdir $(shell pwd))
 
-include $(MKF_DIR)/exe.mk
+include $(core_path)/exe.mk
