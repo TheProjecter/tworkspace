@@ -31,9 +31,8 @@ $(projects_paths) :
 	@mkdir -p $(bin_dir)
 	@mkdir -p $(lib_dir)
 	@mkdir -p $(dep_dir)/$(notdir $@)
-	@make -C $@
+	@make -C $@ --no-print-directory
 
-#@make -C $@ --no-print-directory
 test_paths	:= $(addprefix $(product_root)/tst/,$(tests))
 
 .PHONY: test rm_reports
@@ -46,6 +45,7 @@ rm_reports:
 $(test_paths) : 
 	@make -C $@ --no-print-directory
 	@$(bash) $@/run
+
 
 .PHONY: cow
 cow:

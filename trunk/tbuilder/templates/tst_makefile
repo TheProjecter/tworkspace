@@ -5,7 +5,7 @@ lib_dir	:= $(test_root)/lib
 dep_dir	:= $(test_root)/dep
 
 cpp_files 	+= main.cpp
-cflags	  	+= -I.
+cflags	  	+= -I. -I$(product_root)/src
 lflags	  	+= 
 project_name	= $(notdir $(shell pwd))
 
