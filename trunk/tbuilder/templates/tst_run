@@ -35,5 +35,10 @@ else
         test_result+="pass"
 fi
 
-echo "$test_result" >> $product_root/test_results.txt
+line="-----------------------------------------------------------"
+test_results_file=$product_root/test_results.txt
+
+echo $line >> $test_results_file 
+echo "$test_result" >> $test_results_file
+echo $line >> $test_results_file
 
