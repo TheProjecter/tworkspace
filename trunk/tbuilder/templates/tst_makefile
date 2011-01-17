@@ -5,9 +5,11 @@ lib_dir	:= $(test_root)/lib
 dep_dir	:= $(test_root)/dep
 
 cpp_files 	+= main.cpp
-cflags	  	+= -I. -I$(product_root)/src
+cflags	  	+= -I. -I$(product_root)/src -I/$(utilities_path) \
+		   -DTEST_ROOT=\"$(test_root)\"
+
 lflags	  	+= 
-project_name	= $(notdir $(shell pwd))
+project_name	= $(notdir $(test_root))
 
 SHELL		= /bin/sh
 
