@@ -23,6 +23,11 @@ projects_paths 	= $(addprefix src/,$(projects))
 .PHONY: all
 all 		: $(projects_paths)
 
+ifeq ($(build_type),"debug")
+cflags += -ggdb
+lflags += -ggdb
+endif
+
 .PHONY: $(projects_paths)
 $(projects_paths) : 
 	@echo "#!/bin/bash" > $(product_root)/run

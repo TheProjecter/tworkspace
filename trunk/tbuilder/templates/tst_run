@@ -25,7 +25,7 @@ do
         fi
 done
 
-test_result="$test_name - "
+test_result="$test_name\t\t\t"
 echo -e -n " > ${message_color}$test_name - ${reset_color}"
 if [ "fail" = "$status" ]; then
         echo -e "${fail_color}fail${reset_color}"
@@ -39,6 +39,7 @@ line="-----------------------------------------------------------"
 test_results_file=$product_root/test_results.txt
 
 echo $line >> $test_results_file 
-echo "$test_result" >> $test_results_file
+echo -e -n "$test_result" >> $test_results_file
+echo -e "\t0.62s" >> $test_results_file
 echo $line >> $test_results_file
 
