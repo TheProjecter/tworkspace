@@ -18,11 +18,11 @@ SHELL		= /bin/sh
 
 include $(core_path)/macros.mk
 
-.PHONY: exe ntg
-exe : $(deps_paths) ntg $(bin_dir)/$(project_name)
+.PHONY: exe nothing
+exe : $(deps_paths) nothing $(bin_dir)/$(project_name)
 
-ntg:
-	@donothing=1
+nothing:
+	@isbeendonenothing=1
 
 include $(core_path)/compile.mk
 

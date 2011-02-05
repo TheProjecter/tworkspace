@@ -14,16 +14,23 @@
 #
 #   Author Tigran Hovhannisyan - tigran.co.cc
 
+qt_files	:= $(patsubst %.hpp,moc_%.cpp,$(qt_headers))
+cpp_files	+= $(qt_files)
 obj_files 	:= $(subst .cpp,.o,$(cpp_files)) 
 obj_paths	:= $(addprefix $(obj_dir)/$(project_name)/,$(obj_files)) 
 dep_files	:= $(subst .cpp,.d,$(cpp_files))
 deps_paths	:= $(addprefix $(dep_dir)/$(project_name)/,$(dep_files))
+obj_files 	+= $(subst .cpp,.o,$(cpp_files)) 
 
 .PHONY: $(deps_paths)
-$(deps_paths) 	: 
+$(deps_paths) 	: $(qt_files)
 	@mkdir -p $(@D)
 	@g++ $(cflags) -MM $(subst .d,.cpp,$(@F)) \
 		-MT "$(obj_dir)/$(project_name)/$(subst .d,.o,$(@F))" -o $@
+
+$(qt_files) : $(qt_headers)
+	@$(INFO) " MOC $(@F) ... "
+	@moc  $< -o $@
 
 -include $(deps_paths)
 
@@ -31,3 +38,4 @@ $(obj_paths)	: $(notdir $(subst .o,.cpp,$@))
 	@$(INFO) " CC $(@F) ... "
 	@g++ -c $(cflags) $(notdir $*.cpp) -o $@
 	@$(DONE)
+

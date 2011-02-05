@@ -1,10 +1,12 @@
 
-export product_root := $(shell pwd)
-export product_name := $(notdir $(product_root))
-export bin_dir	:= $(product_root)/bin
-export obj_dir	:= $(product_root)/obj
-export lib_dir	:= $(product_root)/lib
-export dep_dir	:= $(product_root)/dep
+export product_root 	:= $(shell pwd)
+export product_name 	:= $(notdir $(product_root))
+export bin_dir		:= $(product_root)/bin
+export obj_dir		:= $(product_root)/obj
+export lib_dir		:= $(product_root)/lib
+export dep_dir		:= $(product_root)/dep
+
+export build_type 	:= "debug"
 
 include $(core_path)/main.mk
 include $(core_path)/clean.mk

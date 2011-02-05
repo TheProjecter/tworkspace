@@ -16,6 +16,8 @@
 
 SHELL		= /bin/sh
 
+include $(core_path)/macros.mk
+
 projects_paths 	= $(addprefix src/,$(projects))
 
 .PHONY: all
@@ -31,7 +33,22 @@ $(projects_paths) :
 	@mkdir -p $(bin_dir)
 	@mkdir -p $(lib_dir)
 	@mkdir -p $(dep_dir)/$(notdir $@)
+ifeq ($(build_type),"debug") 
+	@$(INFO) "debug" 
+	@$(ENDL)
+	@make -C $@ 
+else
+ifeq ($(build_type),"release")
+	@$(INFO) "release" 
+	@$(ENDL)
 	@make -C $@ --no-print-directory
+else
+	@$(INFO) "profile" 
+	@$(ENDL)
+	@make -C $@ --no-print-directory
+endif
+endif
+
 
 test_paths	:= $(addprefix $(product_root)/tst/,$(tests))
 
