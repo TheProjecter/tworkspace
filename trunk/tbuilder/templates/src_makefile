@@ -2,7 +2,7 @@
 cpp_files 	+= \
 	     	main.cpp \
 
-cflags	  	+= -I.
+cflags	  	+= -I. -I/$(utilities_path)
 
 lflags	  	+= 
 
