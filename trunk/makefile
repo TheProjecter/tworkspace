@@ -42,7 +42,7 @@ wrong_arguments:
 .PHONY: project
 project:
 	@$(INFO) " Enter new project name: "
-	@read P; if [ "$${P}" = "" ]; then $(ERROR) " You didn't type the project name."; $(ENDL); else if [ ! -d "$${P}" ]; then mkdir -p $${P}; echo "export bldr_path	:= $(bldr_path)\nutilities_path := $(utilities_path)\ninclude $(core_path)/macros.mk" > $${P}/makefile; cat $(tmpl_path)/first_time_makefile >> $${P}/makefile; $(CODE) " $${P}"; $(INFO) " project was created successfully."; echo; else $(ERROR) " There is another project with the name "; $(CODE) $${P}; fi; fi
+	@read P; if [ "$${P}" = "" ]; then $(ERROR) " You didn't type the project name."; $(ENDL); else if [ ! -d "$${P}" ]; then mkdir -p $${P}; echo -e "export bldr_path	:= $(bldr_path)\nutilities_path := $(utilities_path)\ninclude $(core_path)/macros.mk" > $${P}/makefile; cat $(tmpl_path)/first_time_makefile >> $${P}/makefile; $(CODE) " $${P}"; $(INFO) " project was created successfully."; echo; else $(ERROR) " There is another project with the name "; $(CODE) $${P}; fi; fi
 
 .PHONY: remove
 remove: clean
