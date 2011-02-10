@@ -32,4 +32,5 @@ include $(core_path)/compile.mk
 $(lib_name) : $(obj_paths) 
 	@$(INFO) " LD $(@F) ... "
 	@g++ $(lflags) --shared $^ -o $@
+	@echo ">>>>"$@
 	@$(DONE)

@@ -42,7 +42,20 @@ wrong_arguments:
 .PHONY: project
 project:
 	@$(INFO) " Enter new project name: "
-	@read P; if [ "$${P}" = "" ]; then $(ERROR) " You didn't type the project name."; $(ENDL); else if [ ! -d "$${P}" ]; then mkdir -p $${P}; echo -e "export bldr_path	:= $(bldr_path)\nutilities_path := $(utilities_path)\ninclude $(core_path)/macros.mk" > $${P}/makefile; cat $(tmpl_path)/first_time_makefile >> $${P}/makefile; $(CODE) " $${P}"; $(INFO) " project was created successfully."; echo; else $(ERROR) " There is another project with the name "; $(CODE) $${P}; fi; fi
+	@read P; \
+	if [ "$${P}" = "" ]; then \
+		$(ERROR) " You didn't type the project name."; $(ENDL); \
+	else if [ ! -d "$${P}" ]; then \
+		mkdir -p $${P}; \
+		echo "export bldr_path	:= $(bldr_path)" > $${P}/makefile;\
+		echo "utilities_path := $(utilities_path)" >> $${P}/makefile;\
+		echo "include $(core_path)/macros.mk" >> $${P}/makefile;\
+		cat $(tmpl_path)/first_time_makefile >> $${P}/makefile; \
+		$(CODE) " $${P}"; \
+		$(INFO) " project was created successfully."; $(ENDL);\
+	else \
+		$(ERROR) " There is another project with the name "; $(ENDL); \
+		$(CODE) $${P}; fi; fi
 
 .PHONY: remove
 remove: clean
@@ -50,9 +63,41 @@ remove: clean
 .PHONY: clean
 clean: 
 	@$(INFO) " Enter the project name you want to remove: "
-	@read P; if [ -d "$${P}" ]; then rm -fr $${P}; $(CODE) " $${P}"; $(INFO) " was removed successfully."; echo; else if [ "$${P}" = "" ]; then $(ERROR) " You didn't type the the project name"; $(ENDL); else $(ERROR) " There is no project named "; $(CODE) "$${P}"; $(ENDL); fi; fi
+	@read P; \
+	if [ -d "$${P}" ]; then \
+		rm -fr $${P}; \
+		$(CODE) " $${P}"; \
+		$(INFO) " was removed successfully."; $(ENDL); \
+	else if [ "$${P}" = "" ]; then \
+		$(ERROR) " You didn't type the the project name"; $(ENDL); \
+		else \
+			$(ERROR) " There is no project named "; \
+			$(CODE) "$${P}"; $(ENDL); \
+		fi; \
+	fi
 
 .PHONY: tar
 tar: 
 	@$(INFO) " Enter the project name you want to tar: "
-	@read P; if [ "$${P}" = "" ]; then $(ERROR) " You didn't type the project name."; $(ENDL); else if [ -d "$${P}" ]; then if [ -d "$${P}/src" ]; then make -C $${P} distclean --no-print-directory; cp $${P}/makefile __$${P}__tmp_makefile; sed s/export\ core_path\.\*/export\ core_path\:\=\$$\(shell\ pwd\)\\/\.\.\\/tbuilder\\/core/ __$${P}__tmp_makefile > $${P}/makefile; tar cjf $${P}.tar.bz2 $${P} $(notdir $(bldr_path)); cp __$${P}__tmp_makefile $${P}/makefile; rm __$${P}__tmp_makefile; $(CODE) " $${P}.tar.bz2"; $(INFO) " was created successfully."; echo; else  $(CODE) "  $${P}"; $(INFO) " is an empty project, there is no wise to create the tar of it. "; echo; fi; else  $(INFO) " There is no project named "; $(CODE) $${P}; echo; fi; fi
+	@read P; \
+	if [ "$${P}" = "" ]; then \
+		$(ERROR) " You didn't type the project name."; $(ENDL); \
+	else if [ -d "$${P}" ]; then \
+		if [ -d "$${P}/src" ]; then \
+			make -C $${P} distclean --no-print-directory; \
+			cp $${P}/makefile __$${P}__tmp_makefile; \
+			sed s/export\ core_path\.\*/export\ core_path\:\=\$$\(shell\ pwd\)\\/\.\.\\/tbuilder\\/core/ __$${P}__tmp_makefile > $${P}/makefile; \
+			tar cjf $${P}.tar.bz2 $${P} $(notdir $(bldr_path)); \
+			cp __$${P}__tmp_makefile $${P}/makefile; \
+			rm __$${P}__tmp_makefile; \
+			$(CODE) " $${P}.tar.bz2"; \
+			$(INFO) " was created successfully."; $(ENDL) \
+		else  \
+			$(CODE) "  $${P}"; \
+			$(INFO) " is an empty project, there is no wise to create the tar of it. "; $(ENDL); \
+		fi; \
+	else  \
+		$(INFO) " There is no project named "; \
+		$(CODE) $${P}; $(ENDL); \
+	fi; \
+	fi
