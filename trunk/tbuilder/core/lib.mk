@@ -21,7 +21,7 @@ lib_name	=  $(lib_dir)/lib$(project_name).so
 include $(core_path)/macros.mk
 
 .PHONY: lib ntg
-lib : ntg $(DEPS_PATHS) $(LIB_NAME)
+lib : ntg $(DEPS_PATHS) $(lib_name)
 
 ntg:
 	@donothing=1
@@ -32,5 +32,4 @@ include $(core_path)/compile.mk
 $(lib_name) : $(obj_paths) 
 	@$(INFO) " LD $(@F) ... "
 	@g++ $(lflags) --shared $^ -o $@
-	@echo ">>>>"$@
 	@$(DONE)

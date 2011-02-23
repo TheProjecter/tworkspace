@@ -31,6 +31,7 @@ $(deps_paths) 	: $(qt_files)
 $(qt_files) : $(qt_headers)
 	@$(INFO) " MOC $(@F) ... "
 	@moc  $< -o $@
+	@$(DONE)
 
 -include $(deps_paths)
 

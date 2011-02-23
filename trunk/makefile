@@ -47,7 +47,7 @@ project:
 		$(ERROR) " You didn't type the project name."; $(ENDL); \
 	else if [ ! -d "$${P}" ]; then \
 		mkdir -p $${P}; \
-		echo "export bldr_path	:= $(bldr_path)" > $${P}/makefile;\
+		echo "export bldr_path := $(bldr_path)" > $${P}/makefile;\
 		echo "utilities_path := $(utilities_path)" >> $${P}/makefile;\
 		echo "include $(core_path)/macros.mk" >> $${P}/makefile;\
 		cat $(tmpl_path)/first_time_makefile >> $${P}/makefile; \
