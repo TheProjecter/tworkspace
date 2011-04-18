@@ -53,15 +53,17 @@ $arch_name .= '_'.lc(execute('uname -r'));
 $arch_name =~ s/-.*//;
 chomp($arch_name);
 
-open (SET, ">$file");
+#open (SET, ">$file");
 
 foreach (keys %cmd) {
-	print SET "$_ := $cmd{$_}";
+	#print SET "$_ := $cmd{$_}";
+	print "$_ := $cmd{$_}";
 }
 
-print SET "arch_name := $arch_name";
+#print SET "arch_name := $arch_name";
+print "arch_name := $arch_name";
 
-close(SET);
+#close(SET);
 
 #
 ##arch_name	:= $(shell $(arch))_$(shell $(uname) | $(tr) "[A-Z]" "[a-z]")_$(shell $(uname) -r | $(perl) -pe "s/-.*//")
