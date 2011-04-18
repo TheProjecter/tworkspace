@@ -10,7 +10,7 @@ use Time::HiRes qw(tv_interval gettimeofday);
 # Subroutine declarations
 ###############################################################################
 sub show_help($);
-sub compile_time();
+sub compile_time($);
 
 ###############################################################################
 # Global variables
@@ -24,22 +24,24 @@ my $PROGVER = "";
 ###############################################################################
 show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
 
-my $test_count = 30;
+my $test_count = 100;
 my $sum = 0;
 for (my $i = 0; $i < $test_count; $i++) {
-	$sum += compile_time();
+	my $old = compile_time("all_old");
+	my $new = compile_time("all_new");
+	$sum += ($old - $new) * 100 / $old;
 }
 $sum /= $test_count;
-print "$sum\n";
+print "$sum% acceleration\n";
 
 ###############################################################################
 # Subroutine definitions
 ###############################################################################
-sub compile_time()
+sub compile_time($)
 {
+	my ($target) = @_;
 	my $start = gettimeofday();
-	system ("make clean >& /dev/null");
-	system ("make >& /dev/null");
+	system ("make $target>& /dev/null");
 	return gettimeofday() - $start;
 }
 
