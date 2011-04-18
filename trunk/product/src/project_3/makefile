@@ -1,12 +1,12 @@
 
-cpp_files	:= main.cpp
+cpp_files	:= main.cpp test.cpp
 
-CFLAGS		:=
-CPPFLAGS	:=
+CFLAGS		:= -I.
+CPPFLAGS	:= -I.
 LFLAGS		:=
 
-binary_type	:= shared_library
-build_type	:= debug
+build_type	?= debug
+binary_type	?= static_library
 target		:= $(notdir $(CURDIR))
 
 build_system := /u/thovhann/Desktop/gnu_make/tworkspace/trunk/build_system
