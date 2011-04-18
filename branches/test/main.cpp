@@ -1,0 +1,10 @@
+
+int a();
+int b();
+
+int main()
+{
+	a();
+	b();
+	return 0;
+}

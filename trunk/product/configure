@@ -1,0 +1,137 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+###############################################################################
+use File::Basename;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub get_command_path($);
+sub execute($);
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "";
+
+my %cmd;
+my $file = ".settings.mk";
+
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+$cmd{'arch'} = get_command_path('arch'); 
+$cmd{'cp'} = get_command_path('cp');
+$cmd{'cut'} = get_command_path('cut');
+$cmd{'cc'} = get_command_path('cc');
+$cmd{'ld'} = get_command_path('g++');
+$cmd{'find'} = get_command_path('find');
+$cmd{'grep'} = get_command_path('grep');
+$cmd{'lex'} = get_command_path('lex');
+$cmd{'mkdir'} = get_command_path('mkdir');
+$cmd{'purecov'} = get_command_path('purecov');
+$cmd{'rm'} = get_command_path('rm');
+$cmd{'sed'} = get_command_path('sed');
+$cmd{'tar'} = get_command_path('tar');
+$cmd{'test'} = get_command_path('test');
+$cmd{'touch'} = get_command_path('touch');
+$cmd{'tr'} = get_command_path('tr');
+$cmd{'uname'} = get_command_path('uname');
+
+my $arch_name = execute('arch');
+chomp($arch_name);
+$arch_name .= '_'.lc(execute('uname'));
+chomp($arch_name);
+$arch_name .= '_'.lc(execute('uname -r'));
+$arch_name =~ s/-.*//;
+chomp($arch_name);
+
+open (SET, ">$file");
+
+foreach (keys %cmd) {
+	print SET "$_ := $cmd{$_}";
+}
+
+print SET "arch_name := $arch_name";
+
+close(SET);
+
+#
+##arch_name	:= $(shell $(arch))_$(shell $(uname) | $(tr) "[A-Z]" "[a-z]")_$(shell $(uname) -r | $(perl) -pe "s/-.*//")
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#===============================================================================
+# Executes the given command and returns the result
+sub execute($)
+{
+	my ($command) = @_;
+	system("$command >& ___tmp");
+	open(RET, "___tmp");
+	my @ret = <RET>;
+	close(RET);
+	unlink("___tmp");
+	return join(" ", @ret);
+}
+
+#===============================================================================
+# Returns the full path of the given command 
+sub get_command_path($)
+{
+	my ($command) = @_;
+	my $ret = execute("which $command");
+	if ($ret =~ /.*\sno\s.*/) { 
+		return undef;
+	}
+	return $ret;	
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+
+sub show_help($)
+{
+my $status = shift;
+print qq!$PROGNAME
+
+NAME
+
+  $PROGNAME - Sets all the parameters which are needed for building process  
+
+SYNOPSYS
+  $PROGNAME [option] 
+
+DESCRIPTION
+
+OPTIONS
+  -h[elp]            Print this help screen and exit
+  
+    
+ENVIRONMENT
+
+RESTRICTIONS
+  Tested with GNU C/C++ compilers only.
+
+SEE ALSO
+  gcc(1) g++(1)
+
+AUTHOR
+  Tigran Hovhannisyan (tigran.job\@gmail.com)
+
+REVISION HISTORY
+!;
+    exit($status);
+} # show_help()
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################

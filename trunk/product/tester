@@ -1,0 +1,86 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+###############################################################################
+use File::Basename;
+use Time::HiRes qw(tv_interval gettimeofday);
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub compile_time();
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "";
+
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+my $test_count = 30;
+my $sum = 0;
+for (my $i = 0; $i < $test_count; $i++) {
+	$sum += compile_time();
+}
+$sum /= $test_count;
+print "$sum\n";
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+sub compile_time()
+{
+	my $start = gettimeofday();
+	system ("make clean >& /dev/null");
+	system ("make >& /dev/null");
+	return gettimeofday() - $start;
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+
+sub show_help($)
+{
+my $status = shift;
+print qq!$PROGNAME                       LTXC                     $PROGNAME
+
+NAME
+
+  $PROGNAME - LTXC - A script which find duplicated -I option of C/C++ compiler
+	in the makefiles  
+
+SYNOPSYS
+  $PROGNAME [option] makefiles_list
+
+DESCRIPTION
+
+OPTIONS
+  -h[elp]            Print this help screen and exit
+  
+    
+ENVIRONMENT
+
+RESTRICTIONS
+  Tested with GNU C/C++ compilers only.
+
+SEE ALSO
+  gcc(1) g++(1)
+
+AUTHOR
+  Tigran Hovhannisyan (tigran_hovhannisyan\@ltxc.com)
+
+REVISION HISTORY
+!;
+    exit($status);
+} # show_help()
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
