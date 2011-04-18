@@ -1,10 +1,4 @@
 
-ifneq "$(wildcard .settings.mk)" ".settings.mk"
-$(shell $(build_system)/configure)
-endif
-include .settings.mk
-bin_path	:= $(arch_name)/$(build_type)/
-
 ifeq "$(build_type)" "debug"
 	cflags	+= -g -DDEBUG
 else
@@ -20,7 +14,13 @@ endif
 .PHONY: prebuild compile $(binary) postbuild check clean distclean
 .PHONY: all
 
-all: prebuild compile $(binary) postbuild
+all: .settings.mk prebuild compile $(binary) postbuild
+
+.settings.mk:
+	@$(build_system)/configure > $@
+
+-include .settings.mk
+bin_path	:= $(arch_name)/$(build_type)/
 
 .NOTPARALLEL: all 
 .NOTPARALLEL: prebuild $(binary) postbuild
