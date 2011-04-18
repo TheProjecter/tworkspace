@@ -1,0 +1,54 @@
+
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#   Author Tigran Hovhannisyan - tigran.co.cc
+
+core_path	:= $(bldr_path)/core
+tmpl_path	:= $(bldr_path)/templates
+
+.PHONY: default
+default: 
+	@$(INFO) " Enter the first sub-project name: "; \
+	read P; \
+	if [ "$${P}" = "" ]; then \
+		$(ERROR) "You didn't type the project name"; $(ENDL); \
+	else \
+		$(INFO) " Enter the test name of sub-project "; \
+		$(CODE) "$${P}: (test_$${P}) "; \
+		read T; \
+		if [ "$${T}" = "" ]; then \
+			T=test_$${P}; \
+		fi; \
+		mkdir -p src/$${P}; \
+		cp $(tmpl_path)/src_makefile src/$${P}/makefile; \
+		cp $(tmpl_path)/src_main src/$${P}/main.cpp; \
+		echo "projects 	+= $${P}" > makefile; \
+		echo "tests 	+= $${T}" >> makefile; \
+		echo "bldr_path  := $(bldr_path)" >> makefile; \
+		echo "export utilities_path := $(utilities_path)" >> makefile;\
+		echo "export core_path  := $(bldr_path)/core" >> makefile; \
+		cat $(tmpl_path)/top_makefile >> makefile; \
+		$(CODE) " $${P}"; \
+		$(INFO) " was created successfully."; $(ENDL); \
+		$(INFO) " top makefile was replaced"; $(ENDL); \
+		mkdir -p tst/$${T}/inputs; \
+		mkdir -p tst/$${T}/outputs; \
+		tst_mkf=tst/$${T}/makefile; \
+		echo "bldr_path  := $(bldr_path)" > $${tst_mkf}; \
+		echo "export core_path  := $(bldr_path)/core" >> $${tst_mkf}; \
+		echo "export product_root  := $(shell pwd)" >> $${tst_mkf}; \
+		cat $(tmpl_path)/tst_makefile >> $${tst_mkf}; \
+		cp $(tmpl_path)/src_main tst/$${T}/main.cpp; \
+	fi
+
