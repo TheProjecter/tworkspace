@@ -52,12 +52,11 @@ sub compile_time($)
 sub show_help($)
 {
 my $status = shift;
-print qq!$PROGNAME                       LTXC                     $PROGNAME
+print qq!$PROGNAME
 
 NAME
 
-  $PROGNAME - LTXC - A script which find duplicated -I option of C/C++ compiler
-	in the makefiles  
+  $PROGNAME - Measures the runtime of the build.  
 
 SYNOPSYS
   $PROGNAME [option] makefiles_list
@@ -77,7 +76,7 @@ SEE ALSO
   gcc(1) g++(1)
 
 AUTHOR
-  Tigran Hovhannisyan (tigran_hovhannisyan\@ltxc.com)
+  Tigran Hovhannisyan (tigran.job@gmail.com)
 
 REVISION HISTORY
 !;
