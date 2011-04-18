@@ -1,12 +1,12 @@
 
 cpp_files	:= main.cpp
 
-CFLAGS		:=
-CPPFLAGS	:=
+CFLAGS		:= 
+CPPFLAGS	:= 
 LFLAGS		:=
 
 build_type	?= debug
-binary_type	?= library
+binary_type	?= exe
 target		:= $(notdir $(CURDIR))
 
 build_system := /u/thovhann/Desktop/gnu_make/tworkspace/trunk/build_system
