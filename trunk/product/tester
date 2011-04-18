@@ -30,8 +30,9 @@ for (my $i = 0; $i < $test_count; $i++) {
 	$sum += compile_time();
 }
 $sum /= $test_count;
-print "$sum\n";
-
+print "current runtime - $sum\n";
+print "the best result was - 0.67600429058075\n";
+print "checked $test_count times.\n";
 ###############################################################################
 # Subroutine definitions
 ###############################################################################
