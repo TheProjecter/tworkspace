@@ -39,8 +39,8 @@ print "checked $test_count times.\n";
 sub compile_time()
 {
 	my $start = gettimeofday();
-	system ("make clean >& /dev/null");
-	system ("make >& /dev/null");
+	system ("make clean ");
+	system ("make ");
 	return gettimeofday() - $start;
 }
 
