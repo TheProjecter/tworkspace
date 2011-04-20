@@ -1,7 +1,7 @@
 
-ifeq "$(binary_type)" "library"
-check:
-else
+ifeq "$(binary)" "executable"
 check: compile $(binary)
 	$(bin_path)$(target)
+else
+check:
 endif

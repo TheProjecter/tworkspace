@@ -1,0 +1,157 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+
+###############################################################################
+use File::Basename;
+use File::Copy;
+use Cwd;
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub get_projects_names();
+sub create($);
+sub setup($);
+sub replace_in_file($$$);
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "";
+
+my $build_system = "build_system/";
+my $test_project = "src/test_project";
+my $top_mkfl = "$build_system/templates/top_makefile";
+my $project_mkfl = "$build_system/templates/project_makefile";
+my $unit_test_mkfl = "$build_system/templates/unit_test_makefile";
+my $main_cpp = "$build_system/templates/main.cpp";
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+$build_system = getcwd."/$build_system";
+my @projects = get_projects_names();
+create(\@projects);
+setup(\@projects);
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#===============================================================================
+# setupt the variables values in the makefiles
+sub replace_in_file($$$)
+{
+	my ($file, $src, $dest) = @_;
+	open (FILE, "<$file");
+	my @new_content;
+	while (<FILE>) {
+		s/$src/$dest/;
+		push(@new_content, $_);
+	}
+	close(FILE);
+	open (FILE, ">$file");
+	foreach (@new_content) {
+		print FILE $_; 
+	}
+	close(FILE);
+}
+
+#===============================================================================
+# setupt the variables values in the makefiles
+sub setup($)
+{
+	my ($projects) = @_;
+	foreach (@$projects) {
+		my $project = $_;
+		replace_in_file("$project/makefile", 
+						"\@projects@", 
+						"projects := \\\n\t$test_project");
+		replace_in_file("$project/$test_project/makefile", 
+						"\@build_system@", 
+						"build_system := $build_system");
+		replace_in_file("$project/$test_project/unit_tests/makefile", 
+						"\@build_system@", 
+						"build_system := $build_system");
+	}
+}
+
+#===============================================================================
+# Returns the names of the projects, whih are either the arguments of the 
+# script, or the result of dialog with the user
+sub create($)
+{
+	my ($projects) = @_;
+	foreach (@$projects) {
+		mkdir $_;
+		copy("$top_mkfl", "$_/makefile");
+		mkdir "$_/src";
+		mkdir "$_/$test_project";
+		copy("$project_mkfl", "$_/$test_project/makefile");
+		mkdir "$_/$test_project/unit_tests";
+		copy("$unit_test_mkfl", "$_/$test_project/unit_tests/makefile");
+		copy("$main_cpp", "$_/$test_project/main.cpp");
+		copy("$main_cpp", "$_/$test_project/unit_tests/main.cpp");
+	}
+}
+
+#===============================================================================
+# Returns the names of the projects, whih are either the arguments of the 
+# script, or the result of dialog with the user
+sub get_projects_names()
+{
+	my @projects;
+	if ($#ARGV < 0) {
+		print "Project name: ";
+		@projects = split(" ", <STDIN>);
+	} else {
+		@projects = @ARGV;
+	}
+	return @projects;
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+	my $status = shift;
+	print qq!$PROGNAME
+
+	NAME
+		$PROGNAME - Description  
+
+		SYNOPSYS
+			$PROGNAME [option] makefiles_list
+
+			DESCRIPTION
+
+			OPTIONS
+				-h[elp]            Print this help screen and exit
+
+
+				ENVIRONMENT
+
+				RESTRICTIONS
+					Tested with GNU C/C++ compilers only.
+
+					SEE ALSO
+						gcc(1) g++(1)
+
+						AUTHOR
+							Tigran Hovhannisyan 
+
+							REVISION HISTORY
+							!;
+							exit($status);
+} # show_help()
+
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
+
