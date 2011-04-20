@@ -29,6 +29,8 @@ show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
 
 $cmd{'arch'} = get_command_path('arch'); 
 $cmd{'cp'} = get_command_path('cp');
+$cmd{'ar'} = get_command_path('ar');
+$cmd{'ranlib'} = get_command_path('ranlib');
 $cmd{'cut'} = get_command_path('cut');
 $cmd{'cc'} = get_command_path('cc');
 $cmd{'ld'} = get_command_path('g++');
