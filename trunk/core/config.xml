@@ -1,0 +1,11 @@
+
+<root>
+<base_url>http://localhost/tworkspace</base_url>
+<hostname>localhost</hostname>
+<username>root</username>
+<password></password>
+<database>tworkspace</database>
+<dbdriver>mysql</dbdriver>
+<author>Tigran Hovhannisyan</author>
+<reppath>./repo/projects</reppath>
+</root>

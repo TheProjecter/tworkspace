@@ -5,7 +5,7 @@ projects	:= \
 	src/project_3/\
 
 export customer_dir	:= $(CURDIR)
-export build_system := $(CURDIR)/../build_system
+export build_system	= $(BLD_SSTM)
 
 .PHONY: all clean
 

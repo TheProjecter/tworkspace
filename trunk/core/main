@@ -1,0 +1,111 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+
+###############################################################################
+use File::Basename;
+use XML::Simple; # install it from cpan 
+use Data::Dumper;
+use DBI;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub read_config();
+sub connect_db();
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME 	= basename($0);
+my $PROGVER 	= "0.1";
+my $config_file = "config.xml";
+my $config; 	# contents input datas which are loaded from the xml
+
+my $table 		= "actions";
+my $table_done 	= "actions_done";
+
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+read_config();
+my $dbh = connect_db();
+my $sth = $dbh->prepare("SELECT * FROM $table");
+$sth->execute();
+while (my $ref = $sth->fetchrow_hashref()) {
+		print "$ref->{'id'} $ref->{'uid'} $ref->{'action'} $ref->{'comment'}\n";
+		$dbh->do("DELETE FROM $table WHERE id=$ref->{'id'}");
+}
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#=============================================================================
+# make a connection with the database
+sub connect_db()
+{
+	my $dbdriver = $config->{'dbdriver'};
+	my $database = $config->{'database'};
+	my $username = $config->{'username'};
+	#my $password = $config->{'password'};
+	my $password = "";
+	my $dbh = DBI->connect("DBI:$dbdriver:$database", "$username", "$password");
+	return $dbh;
+}
+
+#=============================================================================
+# reads config_file
+sub read_config()
+{
+	# getting all inputs from the config_file
+	my $xml_config = XML::Simple->new();
+	$config = $xml_config->XMLin($config_file);
+# DEBUG
+	#print Dumper(%$config);
+# END
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+my $status = shift;
+print qq!$PROGNAME
+
+NAME
+	$PROGNAME - Description  
+
+SYNOPSYS
+	$PROGNAME [option] makefiles_list
+
+DESCRIPTION
+
+OPTIONS
+	-h[elp]            Print this help screen and exit
+
+
+ENVIRONMENT
+
+RESTRICTIONS
+	Tested with ...
+
+SEE ALSO
+
+AUTHOR
+	Tigran Hovhannisyan 
+
+REVISION HISTORY
+!;
+exit($status);
+} # show_help()
+
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
+

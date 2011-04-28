@@ -1,0 +1,215 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+
+###############################################################################
+use File::Basename;
+use XML::Simple; # install it from cpan 
+use Data::Dumper;
+use DBI;
+use SVN::Client;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub read_config();
+sub connect_db();
+sub get_argument($);
+sub has_argument($);
+sub db_conteins($);
+sub add_into_svn($);
+sub commit_log($);
+sub remove($);
+sub add($$);
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "0.1";
+my $config_file = "config.xml";
+my $config; 	# contents input datas which are loaded from the xml
+
+my $table = "projects";
+my $db;
+
+my $ctx = new SVN::Client(
+				auth=>[SVN::Client::get_simple_provider(),
+				SVN::Client::get_simple_prompt_provider(\&simple_promt,2),
+				SVN::Client::get_username_provider()],
+			 );
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+read_config();
+$db = connect_db();
+
+if (has_argument('add')) {
+	my $name = get_argument("name");
+	my $comment = get_argument("comment");
+	add($name, $comment);
+} elsif (has_argument('rem')) {
+	my $name = get_argument("name");
+	remove($name);
+}
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#=============================================================================
+# adds given by name project into the repository
+sub add($$)
+{
+	my ($name, $comment) = @_;
+	die "ERROR: missed the name of the project" if ($name eq "");
+	if (db_conteins($name)) {
+		die "There already are project with the name $name\n"
+	}
+	if(add_into_svn($name)) {
+		$db->do("INSERT INTO $table VALUES(0, '$name', '$comment')");
+	}
+}
+
+#=============================================================================
+# removes given by name project from the repository
+sub remove($)
+{
+	my ($name) = @_;
+	die "ERROR: missed the name of the project" if ($name eq "");
+	$ctx->delete("$config->{'reppath'}/$name", 1);
+	$db->do("DELETE FROM $table WHERE name='$name'");
+	$ctx->commit("$config->{'reppath'}/$name", 0);
+	return 1;
+}
+
+#=============================================================================
+# returns the proper comment for commiting
+sub commit_log($)
+{
+	my ($comment) = @_;
+	return $comment;
+}
+
+#=============================================================================
+# returns 1 if can successfuly add given project into repository, otherwise
+# returns 0 
+sub add_into_svn($)
+{
+	my ($name) = @_;
+	mkdir("$config->{'reppath'}/$name");
+	mkdir("$config->{'reppath'}/$name/trunk");
+	mkdir("$config->{'reppath'}/$name/tags");
+	mkdir("$config->{'reppath'}/$name/branches");
+	$ctx->add("$config->{'reppath'}/$name", 1);
+	$ctx->commit("$config->{'reppath'}/$name", 0);
+	return 1;
+}
+
+#=============================================================================
+# returns 1 if in the database there are argument with the given name, 
+# otherwise returns 0
+sub db_conteins($)
+{
+	my ($name) = @_;
+	my $sth = $db->prepare("SELECT * FROM $table");
+	$sth->execute();
+	while (my $ref = $sth->fetchrow_hashref()) {
+		return 1 if ($ref->{'name'} eq $name);
+	}
+	return 0;
+}
+
+#=============================================================================
+# returns 1 if in the arguments list there is given argument, otherwise returns
+# 0
+sub has_argument($)
+{
+	my ($p) = @_;
+	if(join(" ", @ARGV) =~ /-?$p/) {
+		return 1;	
+	} else {
+		return 0;	
+	}
+}
+
+#=============================================================================
+# builds projects corresponding to the data list
+sub get_argument($)
+{
+	my ($p) = @_;
+	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"]([\w|\/]*)[ |\$|"]*/) {
+		return $2;
+	}
+	return "";
+}
+
+#=============================================================================
+# make a connection with the database
+sub connect_db()
+{
+	my $dbdriver = $config->{'dbdriver'};
+	my $database = $config->{'database'};
+	my $username = $config->{'username'};
+	#my $password = $config->{'password'};
+	my $password = "";
+	my $dbh = DBI->connect("DBI:$dbdriver:$database", "$username", "$password");
+	return $dbh;
+}
+
+#=============================================================================
+# reads config_file
+sub read_config()
+{
+	# getting all inputs from the config_file
+	my $xml_config = XML::Simple->new();
+	$config = $xml_config->XMLin($config_file);
+# DEBUG
+	#print Dumper(%$config);
+# END
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+
+my $status = shift;
+print qq!$PROGNAME
+
+NAME
+	$PROGNAME - Description  
+
+SYNOPSYS
+	$PROGNAME [option] makefiles_list
+
+DESCRIPTION
+
+OPTIONS
+	-h[elp]            	Print this help screen and exit
+	-add				Adds project
+
+ENVIRONMENT
+
+RESTRICTIONS
+
+SEE ALSO
+
+AUTHOR
+	Tigran Hovhannisyan 
+
+REVISION HISTORY
+!;
+			exit($status);
+} # show_help()
+
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
+

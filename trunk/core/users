@@ -1,0 +1,165 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+
+###############################################################################
+use File::Basename;
+use XML::Simple; # install it from cpan 
+use Data::Dumper;
+use DBI;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub read_config();
+sub connect_db();
+sub get_argument($);
+sub has_argument($);
+sub db_conteins($);
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "0.1";
+my $config_file = "config.xml";
+my $config; 	# contents input datas which are loaded from the xml
+
+my $table = "users";
+my $db;
+
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+read_config();
+$db = connect_db();
+
+if (has_argument('add')) {
+	my $name = get_argument("name") or die "Missed name during adding";
+	if (db_conteins($name)) {
+		die "There already are user with the name $name\n"
+	}
+	my $full_name = get_argument("full_name");
+	my $password = get_argument("password");
+	my $permission = get_argument("permission");
+	$db->do("INSERT INTO $table VALUES(0, '$full_name'\
+										, '$name'\
+										, '$password'\
+										, '$permission'\
+										)");
+} elsif (has_argument('rem')) {
+	my $id = get_argument("id") or die "Missed id during remove";
+	$db->do("DELETE FROM $table WHERE id=$id");
+}
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#=============================================================================
+# returns 1 if in the database there are argument with the given name, 
+# otherwise returns 0
+sub db_conteins($)
+{
+	my ($name) = @_;
+	my $sth = $db->prepare("SELECT * FROM $table");
+	$sth->execute();
+	while (my $ref = $sth->fetchrow_hashref()) {
+		return 1 if ($ref->{'name'} eq $name);
+	}
+	return 0;
+}
+
+#=============================================================================
+# returns 1 if in the arguments list there is given argument, otherwise returns
+# 0
+sub has_argument($)
+{
+	my ($p) = @_;
+	if(join(" ", @ARGV) =~ /-?$p/) {
+		return 1;	
+	} else {
+		return 0;	
+	}
+}
+
+#=============================================================================
+# builds projects corresponding to the data list
+sub get_argument($)
+{
+	my ($p) = @_;
+	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"]([\w|\/]*)[ |\$|"]*/) {
+		return $2;
+	}
+	return "";
+}
+
+#=============================================================================
+# make a connection with the database
+sub connect_db()
+{
+	my $dbdriver = $config->{'dbdriver'};
+	my $database = $config->{'database'};
+	my $username = $config->{'username'};
+	#my $password = $config->{'password'};
+	my $password = "";
+	my $dbh = DBI->connect("DBI:$dbdriver:$database", "$username", "$password");
+	return $dbh;
+}
+
+#=============================================================================
+# reads config_file
+sub read_config()
+{
+	# getting all inputs from the config_file
+	my $xml_config = XML::Simple->new();
+	$config = $xml_config->XMLin($config_file);
+# DEBUG
+	#print Dumper(%$config);
+# END
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+
+my $status = shift;
+print qq!$PROGNAME
+
+NAME
+	$PROGNAME - Description  
+
+SYNOPSYS
+	$PROGNAME [option] makefiles_list
+
+DESCRIPTION
+
+OPTIONS
+	-h[elp]            	Print this help screen and exit
+	-add				Adds project
+
+ENVIRONMENT
+
+RESTRICTIONS
+
+SEE ALSO
+
+AUTHOR
+	Tigran Hovhannisyan 
+
+REVISION HISTORY
+!;
+			exit($status);
+} # show_help()
+
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
+
