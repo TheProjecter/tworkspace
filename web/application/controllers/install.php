@@ -11,13 +11,13 @@ class Install extends CI_Controller
 				'unsigned' => TRUE,
 				'auto_increment' => TRUE
 				),
-                        'name' => array(
-				'type' => 'VARCHAR',
-				'constraint' => '100',
+                'name' => array(
+					'type' => 'VARCHAR',
+					'constraint' => '100',
 				),
-                        'description' => array(
-				'type' => 'TEXT',
-				'null' => TRUE,
+                'description' => array(
+					'type' => 'TEXT',
+					'null' => TRUE,
 				),
 		);
 		$this->dbforge->add_key('id', TRUE);
@@ -48,10 +48,39 @@ class Install extends CI_Controller
 		$this->dbforge->create_table('tworkspace.users', TRUE);
 	}
 
+	private function create_actions_table() 
+	{
+		$fields = array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 5,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			'uid' => array(
+				'type' => 'INT',
+				'constraint' => 5,
+				'unsigned' => TRUE,
+			),
+            'action' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100',
+			),
+            'comment' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100',
+			),
+		);
+		$this->dbforge->add_key('id', TRUE);
+		$this->dbforge->add_field($fields);
+		$this->dbforge->create_table('tworkspace.actions', TRUE);
+	}
+
 	private function create_tables()
 	{
 		$this->create_projects_table();	
 		$this->create_users_table();	
+		$this->create_actions_table();	
 	}
 
 	private function create_database()
