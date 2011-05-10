@@ -1,0 +1,4 @@
+<root>
+	<templates_path>../templates/</templates_path>
+	<builder_path>../core/</builder_path>
+</root>

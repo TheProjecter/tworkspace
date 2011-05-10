@@ -7,6 +7,9 @@ use strict; # Always working in strict mode with warnings on
 use File::Basename;
 use File::Copy;
 use Cwd;
+use XML::Simple; # install it from cpan 
+use Data::Dumper;
+
 ###############################################################################
 # Subroutine declarations
 ###############################################################################
@@ -15,33 +18,65 @@ sub get_projects_names();
 sub create($);
 sub setup($);
 sub replace_in_file($$$);
+sub get_argument($);
+sub read_config();
 
 ###############################################################################
 # Global variables
 ###############################################################################
 # Messaging and this script name/location/version related.
 my $PROGNAME = basename($0);
-my $PROGVER = "";
+my $PROGVER = "0.1";
 
-my $build_system = "build_system/";
+my $config_file = "config.xml";
+my $config; 	# contents input datas which are loaded from the xml
+
+my $builder_path;
+my $templates_path;
+
+my $build_system;
 my $test_project = "src/test_project";
-my $top_mkfl = "$build_system/templates/top_makefile";
-my $project_mkfl = "$build_system/templates/project_makefile";
-my $unit_test_mkfl = "$build_system/templates/unit_test_makefile";
-my $main_cpp = "$build_system/templates/main.cpp";
+
 ###############################################################################
 # Main Block 
 ###############################################################################
 show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
 
-$build_system = getcwd."/$build_system";
-my @projects = get_projects_names();
-create(\@projects);
-setup(\@projects);
+read_config();
+$builder_path   = $config->{templates_path};
+$templates_path = $config->{builder_path};
+my $projects = get_argument("name");
+print $projects, "\n";
+#my @projects = get_projects_names();
+#create(\@projects);
+#setup(\@projects);
 
 ###############################################################################
 # Subroutine definitions
 ###############################################################################
+
+#=============================================================================
+# reads config_file
+sub read_config()
+{
+	# getting all inputs from the config_file
+	my $xml_config = XML::Simple->new();
+	$config = $xml_config->XMLin($config_file);
+# DEBUG
+	#print Dumper(%$config);
+# END
+}
+
+#=============================================================================
+# builds projects corresponding to the data list
+sub get_argument($)
+{
+	my ($p) = @_;
+	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"]([\w|\/]*)[ |\$|"]*/) {
+		return $2;
+	}
+	return "";
+}
 
 #===============================================================================
 # setupt the variables values in the makefiles
@@ -89,14 +124,14 @@ sub create($)
 	my ($projects) = @_;
 	foreach (@$projects) {
 		mkdir $_;
-		copy("$top_mkfl", "$_/makefile");
+		copy("$templates_path$/top_makefile", "$_/makefile");
 		mkdir "$_/src";
 		mkdir "$_/$test_project";
-		copy("$project_mkfl", "$_/$test_project/makefile");
+		copy("$templates_path/project_makefile", "$_/$test_project/makefile");
 		mkdir "$_/$test_project/unit_tests";
-		copy("$unit_test_mkfl", "$_/$test_project/unit_tests/makefile");
-		copy("$main_cpp", "$_/$test_project/main.cpp");
-		copy("$main_cpp", "$_/$test_project/unit_tests/main.cpp");
+		copy("$templates_path/unit_test_makefile", "$_/$test_project/unit_tests/makefile");
+		copy("$templates_path/main.cpp", "$_/$test_project/main.cpp");
+		copy("$templates_path/main.cpp", "$_/$test_project/unit_tests/main.cpp");
 	}
 }
 

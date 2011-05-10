@@ -1,0 +1,362 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+###############################################################################
+use File::Basename;
+use File::Copy;
+use Time::HiRes qw(tv_interval gettimeofday);
+use List::Util qw(min max);
+use XML::Simple; # install it from cpan 
+use Data::Dumper;
+
+use File::Path qw(make_path remove_tree); # install it from cpan
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME 	= basename($0);
+my $PROGVER 	= "0.1";
+my $config_file = "config.xml";
+my $analyzes_file = "analyzes.xml";
+
+my %config; 	# conteins input datas which are loaded from the xml
+my %analyzes;   # conteins the output of build analizer, that is information
+				# regarding duplicated and unused include paths and so on
+my @makefiles; 	# makefiles are read from the file described in config_file
+my $tmp_file;
+#my %unused_inc_paths; # contents unused include paths for all makefiles
+my %all_incs;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub create_temp_directory();
+sub remove_temp_directory();
+sub read_configs();
+sub read_analyzes();
+sub parse_makefiles_list();
+sub get_actual_include_paths();
+sub get_include_paths_of($);
+sub remove_unuseds();
+sub remove_from_makefile($$$);
+sub compilation_error($);
+sub remove_for_this($);
+sub has_argument($);
+sub compact();
+sub devide_content($$);
+
+###############################################################################
+# Main Block 
+###############################################################################
+if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/)  {
+	show_help(0);
+	shift;
+}
+
+read_configs();
+read_analyzes();
+create_temp_directory();
+parse_makefiles_list();
+get_actual_include_paths();
+remove_unuseds();
+#if (has_argument('compact')) {
+#	compact();
+#}
+remove_temp_directory();
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#=============================================================================
+# returns 1 if in the arguments list there is given argument, otherwise returns
+# 0
+sub has_argument($)
+{
+	my ($p) = @_;
+	if(join(" ", @ARGV) =~ /-?$p/) {
+		return 1;	
+	} else {
+		return 0;	
+	}
+}
+
+#=============================================================================
+# This function compact the makefiles by rewriting.
+sub compact()
+{
+	print "compact\n";	
+}
+
+#=============================================================================
+# reads analyzer output from the xmp file.
+sub read_analyzes()
+{
+	# getting all inputs from the analyzes_file
+	my $xml_config = XML::Simple->new();
+	my $analyzes_ref = $xml_config->XMLin($analyzes_file, ForceArray=>1);
+# DEBUG
+	#print Dumper($analyzes_ref->{'anon'});
+# END
+	%analyzes = %{$analyzes_ref->{'anon'}};
+}
+
+#=============================================================================
+# Checks whether there are compilation errors with the given makefile or not
+sub compilation_error($)
+{
+	my ($makefile) = @_;
+	my $file = "$config{'prefix'}/$makefile";
+	if ($file =~ /(.*)[m|M]akefile/) {
+		system ("gmake -C $1 clean>& $tmp_file");
+		system ("gmake -C $1 >& $tmp_file");
+	} else {
+		die "Wrong makefile name $file.";
+	}
+	open(TMP, $tmp_file);
+	my @content = <TMP>;
+	if ($content[$#content - 1] =~ /.*\s[Ee]rror.*/) {
+		close($tmp_file);
+		return 1;
+	}
+	close($tmp_file);
+	return 0;
+}
+
+
+# Gets a file and a variable name, devides the content of the file into 3 pices,# first every thing before the variable, second the variable and its value, the # thried everything after the variable.
+sub devide_content($$)
+{
+	my ($file, $var_name) = @_;
+	open(FILE, $file) or die "Cannot open $file, $!";
+	my %content;
+	my $part = "first";
+	while (<FILE>) {
+		if (/^$var_name\s*:?=.*/) {
+			$part = "second";
+		}
+		if (($part eq "second") and (/^[\s|#]*$/)) {
+			$part = "third";
+		}
+		$content{$part} .= $_;	
+	}
+	close(FILE);
+	return \%content;
+}
+
+#=============================================================================
+# Generates makefile without given include path on it
+# during this action it seperates a makefile in logical 3 partes, the first is
+# every thing till $var_name, second part is $var_name and its value in the 
+# makefile and the thired part is everything after $var_name and its value.
+sub remove_from_makefile($$$)
+{
+	my ($makefile, $var_name, $unused_incs) = @_;
+	my $all = $all_incs{$makefile};
+	my @accepted_incs; 
+	foreach my $unchecked (@$all) {
+		my $add = 1;
+		foreach (@$unused_incs) {
+			if (($_ eq $unchecked)) {
+				$add = 0;
+			}
+		}
+		if ($add) {
+				push (@accepted_incs, $unchecked);
+		}
+	}
+	my $file = "$config{'prefix'}/$makefile";
+	my $makefile_content = devide_content($file, $var_name);
+	open (MKF_GEN, ">$file") or die "Cannot open $file, $!";
+	print MKF_GEN $makefile_content->{'first'};
+	my $comment = "# This variable was generated by $PROGNAME v$PROGVER\n";
+	if (! ($makefile_content->{'first'} =~ /.*$comment.*/)) {
+		print MKF_GEN $comment;
+	}
+	print MKF_GEN "$var_name := \\\n\t", join("\\\n\t", @accepted_incs);
+	print MKF_GEN "\\\n";
+	print MKF_GEN $makefile_content->{'third'};
+	close (MKF_GEN);
+}
+
+#=============================================================================
+# clean given makefile from unused include paths
+sub remove_for_this($)
+{
+	my ($makefile) = @_;
+	my @to_check;
+	my $inc_paths = $analyzes{$makefile}->{'unuseds'};
+	foreach my $inc (@$inc_paths) {
+		push(@to_check, $inc);	
+		remove_from_makefile($makefile, "CPPINCS", \@to_check);
+		if (compilation_error($makefile)) {
+			splice(@to_check, $#to_check, 1);
+		}	
+	}
+}
+
+#=============================================================================
+# Gets all "include paths" which build_analizer marks as unused. For each path,
+# removes the path from the makefile, tries to build the project, if
+# compilation doesn't pass returns path to it's place.  
+sub remove_unuseds()
+{
+	my @checked_unuseds;
+	foreach (keys %analyzes) {
+		my $makefile = $_;
+		if (compilation_error($makefile)) {
+			print " ERROR: compile errors without removing any unused path \n".
+				" makefile: $makefile.\n";
+		} else {
+			remove_for_this($makefile);
+		}
+	}
+}
+
+#=============================================================================
+# in the read makefiles changes the include paths to simple format, 
+# for example if there are -I/path/{subpath1,subpath2}, it'll change to
+# -I/path/subpath1, -I/path/subpath2.
+# rewrites the current makefile
+sub get_include_paths_of($)
+{
+	my ($makefile) = @_;
+	my $file = "$config{'prefix'}/$makefile";
+	system("make -pnf $file > $tmp_file");
+	open TMP_FILE, $tmp_file or die "Cannot open $tmp_file, $!";
+	my @inc_array;
+	while (<TMP_FILE>) {
+		if (/CPPINCS\s*:?=(.*)$/) {
+			my $inc_path = $1;
+			chop $inc_path;
+			foreach (split(" ", $inc_path)) {
+				if (/-I(.*)\{(.*)\}$/) {
+					foreach(split(",", $2)) {
+						push(@inc_array, "$1$_");
+					}
+				} else {
+						push(@inc_array, "$_");
+				}
+			}
+		}
+	}
+	$all_incs{$makefile} = \@inc_array;
+#DEBUG
+	#print Dumper(%all_incs);
+#END
+	close TMP_FILE;
+}
+
+#=============================================================================
+# in the read makefiles changes the include paths to simple format, 
+# for example if there are -I/path/{subpath1,subpath2}, it'll change to
+# -I/path/subpath1, -I/path/subpath2.
+# rewrites the current makefile
+sub get_actual_include_paths()
+{
+	foreach (@makefiles) {
+		get_include_paths_of($_);
+	}	
+}
+
+#=============================================================================
+# reads config_file
+sub read_configs()
+{
+	# getting all inputs from the config_file
+	my $xml_config = XML::Simple->new();
+	my $config_ref = $xml_config->XMLin($config_file);
+# DEBUG
+	#print Dumper($config_ref);
+# END
+	%config = %$config_ref;
+}
+
+#=============================================================================
+# removes temp directory in path specified in config_file
+sub remove_temp_directory()
+{
+	remove_tree("/tmp/$PROGNAME") 
+		or die "Cannot remove temprorary directory.\n";	
+}
+
+#=============================================================================
+# creates temp directory in path specified in config_file
+sub create_temp_directory()
+{
+	if (! -e "/tmp/$PROGNAME") {
+		make_path("/tmp/$PROGNAME") 
+			or die "Cannot create temprorary directory.\n";	
+	}
+	$tmp_file = "/tmp/$PROGNAME/__tmp_";
+}
+
+#=============================================================================
+# reads makefiles list and stores them in the global hash 'makefiles'
+sub parse_makefiles_list()
+{
+	if (! defined $config{"makefiles"}) {
+		die "Makefiles list is not specified.\n" 
+	}
+	my $file = $config{'makefiles'};
+	die "Makefiles list does not exists.\n" if (! -f $file);
+	open (FILE, $file) or die "Cannot open $file.";
+	while (<FILE>) {
+		next if (m/^([\s|\t])*$/);	
+		chomp;
+		if (/(.*\/[M|m]akefile)/) {
+			push @makefiles, $1;
+		} else {
+			print "$_ - is not an proper makefile\n";
+		}
+	}
+	close (FILE);
+# DEBUG
+	# print Dumper(@makefiles);
+# END
+}
+
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+    my $status = shift;
+
+print qq!$PROGNAME                     LTXC                     $PROGNAME
+
+NAME
+  $PROGNAME - LTXC - Gets unused include paths xml file, which is written by 
+build_analizer, tries to remove each include path, if after compilation there 
+are errors returns removed include path to its place.
+
+SYNOPSYS
+  $PROGNAME [option] list_of_makefiles
+
+DESCRIPTION
+
+OPTIONS
+  -h[elp]            Print this help screen and exit
+    
+ENVIRONMENT
+
+RESTRICTIONS
+  Tested with GNU C/C++ compilers only.
+
+SEE ALSO
+  gcc(1) g++(1)
+
+AUTHOR
+  Tigran Hovhannisyan (tigran_hovhannisyan\@ltxc.com)
+
+REVISION HISTORY
+!;
+    exit($status);
+} # show_help()
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
