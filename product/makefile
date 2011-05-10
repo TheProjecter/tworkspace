@@ -11,28 +11,28 @@ export build_system	= $(BLD_SSTM)
 
 all :
 	+@for i in $(projects); do \
-		make -C $$i; \
+		$(MAKE) -C $$i; \
 	done
 
 test:
 	+@for i in $(projects); do \
-		make -C $$i/unit_tests; \
-		make -C $$i/unit_tests check; \
+		$(MAKE) -C $$i/unit_tests; \
+		$(MAKE) -C $$i/unit_tests check; \
 	done
 	
 clean: 
 	+@for i in $(projects); do \
-		make -C $$i clean; \
+		$(MAKE) -C $$i clean; \
 	done
 
 distclean: 
 	+@for i in $(projects); do \
-		make -C $$i distclean; \
-		make -C $$i/unit_tests distclean; \
+		$(MAKE) -C $$i distclean; \
+		$(MAKE) -C $$i/unit_tests distclean; \
 	done
 
 check:
 	+@for i in $(projects); do \
-		make -C $$i check; \
+		$(MAKE) -C $$i check; \
 	done
 	

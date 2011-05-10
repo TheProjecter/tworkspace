@@ -1,0 +1,877 @@
+#!/usr/bin/perl -w
+################################################################################
+#
+################################################################################
+use strict; # Always working in strict mode with warnings on
+################################################################################
+use File::Basename;
+use Cwd;
+use Cwd 'abs_path';
+################################################################################
+#             S U B R O U T I N E  D E C L A R A T I O N S
+################################################################################
+sub show_help($);
+sub get_macro_incpath_lists($);
+sub check_redundant_include_paths($$$$);
+sub check_redundant_macros($$$$);
+sub macro_to_string($);
+sub macro_list_to_string($);
+sub include_to_string($);
+sub include_list_to_string($);
+sub expand_list_without_one($);
+sub validate_include_path($);
+sub validate_macro($);
+sub compile_file($);
+sub get_new_output_file($$$);
+sub compare_file($$);
+sub optimize_includes($$$$);
+sub parse_preprocessed_output($);
+sub parse_source_file($);
+sub match_include_paths($$);
+################################################################################
+#                    G L O B A L  V A R I A B L E S
+################################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "0.11";
+#===============================================================================
+# Storages for script arguments
+my $PASS =   (exists $ENV{GWCC_PASS})?     $ENV{GWCC_PASS}:     0;
+my $NOCOMP = (exists $ENV{GWCC_NOCOMPILE})?$ENV{GWCC_NOCOMPILE}:0;
+my $HELP = 0;
+#===============================================================================
+# Operation modes
+my $MODE_LINE = 0;
+my $MODE_USED = 0;
+my $MODE_NOENV = 0;
+#===============================================================================
+my $DIFF = '/usr/bin/diff';
+
+#===============================================================================
+# Storages for other global data
+my $CXX = undef;
+my @CXXARGS = ();
+my $CXXFILE = undef;
+################################################################################
+#                              M A I N  B L O C K
+################################################################################
+# Command line argument
+show_help(0) if ($ARGV[0] =~ /^\-h(elp)?$/);
+
+# Checking for cmd line arguments
+if ($ARGV[0] =~ /^\-n(oenv)?$/)
+{
+    $MODE_LINE = (exists $ENV{GWCC_PRINT_LINE})?1:0;
+    $MODE_USED = (exists $ENV{GWCC_PRINT_USED})?1:0;
+    shift @ARGV;
+}
+elsif ($ARGV[0] =~ /^\-u(sed)?$/)
+{
+    $MODE_USED = 1;
+    shift @ARGV;
+}
+elsif ($ARGV[0] =~ /^\-l(ine)?$/)
+{
+    $MODE_LINE = 1;
+    shift @ARGV;
+}
+elsif ($ARGV[0] =~ /^\-a(ll)?$/)
+{
+    $MODE_LINE = 1;
+    $MODE_USED = 1;
+    shift @ARGV;
+}
+
+
+# Getting compiler path, compiler args and input source file
+($CXX, @CXXARGS) = @ARGV;
+show_help(1) if (! defined $CXX || $CXX =~ /^\s*$/ || !scalar @CXXARGS);
+#===============================================================================
+my $CMD = $CXX . " " . join(" ", @CXXARGS);
+print "$CMD\n";
+
+
+my ($includes, $macros, $args) = get_macro_incpath_lists(\@CXXARGS);
+
+if (scalar @{$includes})
+{
+    check_redundant_include_paths($CXX, $includes, $macros, $args);
+}
+
+
+if (scalar @{$macros})
+{
+    check_redundant_macros($CXX, $includes, $macros, $args);
+}
+
+
+exit compile_file($CMD);
+################################################################################
+#                   S U B R O U T I N E  D E F I N I T I O N S
+################################################################################
+sub optimize_includes($$$$)
+{
+    my ($gcc, $macros, $includes, $args) = @_;
+    
+    # We need to get the name of source file to be compared
+    my $include_str = include_list_to_string($includes);
+
+    my @prec_args = get_new_output_file($args, 'E', '.golden');
+    my $prec_object = $prec_args[$#prec_args]; $prec_object =~ s/^\-o//;   
+    my $prec_arg_str = join(" ", @prec_args);
+    my @prec_macros = map {macro_to_string($_)} @{$macros};
+    my $prec_macro_string = join(" ", @prec_macros);
+    my $prec_cmd_str_prefix = "$gcc $prec_arg_str $prec_macro_string $include_str";
+    my $prec_cmd_str = "$prec_cmd_str_prefix";
+    
+    my $prec_status = validate_include_path($prec_cmd_str);
+    if ($prec_status)
+    {
+        print "$PROGNAME: Error: Failed to get pre-compiled output for file. Skipping this file.\n";
+        return;
+    }
+    
+    my $res = parse_preprocessed_output($prec_object);
+    if (! defined $res)
+    {
+        print "$PROGNAME: Error: could not parse pre-compiled output for file. Skipping this file.\n";
+        unlink $prec_object || warn "$PROGNAME: Warning: unlink(): $prec_object: $!\n";
+        return;
+    }
+        
+    my ($src_file, $all_includes) = @{$res};    
+       
+    my $actual_includes = parse_source_file($src_file);
+    if (! defined $actual_includes)
+    {
+        print "$PROGNAME: Error: could not parse source file. Skipping this file.\n";
+        unlink $prec_object || warn "$PROGNAME: Warning: unlink(): $prec_object: $!\n";
+        return;
+    }
+    
+    my $include_report = match_include_paths($actual_includes, $all_includes);
+    my %used_includes = map {$_ => undef} values %{$include_report};
+    
+    unlink $prec_object || warn "$PROGNAME: Warning: unlink(): $prec_object: $!\n";    
+    return \%used_includes;
+    
+    
+} # optimize_includes()
+################################################################################
+sub match_include_paths($$)
+{
+    my ($actual_includes, $all_includes) = @_;
+    my %include_report = ();
+    
+    for my $inc_file (keys %{$actual_includes})
+    {
+        my $inc_file_len = length($inc_file);
+        
+        for my $prep_include (keys %{$all_includes})
+        {
+            my $prep_include_len = length($prep_include);
+            
+            next if ($prep_include_len < $inc_file_len);
+            
+            if ($prep_include_len == $inc_file_len)
+            {
+                if ($inc_file eq $prep_include)
+                {
+                    $include_report{$inc_file} = $prep_include;
+                }
+            
+                next;
+            
+            }
+            
+            my $prep_include_file_part = substr($prep_include, $prep_include_len - $inc_file_len);
+            my $prep_include_dir_part = substr($prep_include, 0, $prep_include_len - $inc_file_len);
+           
+            # If include dir part is not a dir, then some filename is teared apart, nothing to do here;
+            next if ($prep_include_dir_part !~ /\/$/);
+
+            if ($prep_include_file_part eq $inc_file)
+            {
+                $prep_include_dir_part =~ s/\/+$//;
+                $include_report{$inc_file} = $prep_include_dir_part;
+            }
+            
+            
+        }
+        
+    }
+    
+    
+    
+    return \%include_report;
+    
+} # match_include_paths()
+################################################################################
+sub parse_source_file($)
+{
+    my $file = shift;
+    
+   if (! open(FIN, "<$file"))
+    {
+        warn "$PROGNAME: Error: open(): $file: $!.\n";
+        return undef;
+    }    
+
+    my %actual_includes = ();
+    
+    while (<FIN>)
+    {
+        
+        if (/^\s*#\s*include\s+[<"'](.*)[>"']/)
+        {
+            $actual_includes{$1} = undef;
+        }
+    }
+    
+    close(FIN);
+    
+    return \%actual_includes;
+    
+    
+} # parse_source_file()
+################################################################################
+sub parse_preprocessed_output($)
+{
+    my $file = shift;
+    
+    
+    my $src_file = undef;
+    my %include_hash = ();
+    
+    if (! open(FIN, "<$file"))
+    {
+        warn "$PROGNAME: Error: open(): $file: $!.\n";
+        return undef;
+    }    
+    my @fdata = (<FIN>);    
+    close(FIN);
+    
+    
+    $src_file = shift @fdata; chomp $src_file;
+    if ($src_file =~ /^#\s+\d+\s+\"(.*)\"/)
+    {
+        $src_file = $1;
+    }
+    else
+    {
+        return undef;
+    }
+    
+    for (@fdata)
+    {
+        next if (! /^#.*[<"](.*)[>"]/);
+        my $inc_path = $1;
+        $include_hash{$inc_path} = undef if ($inc_path !~ /^\/usr/);
+        
+    }
+    
+    
+    
+    
+    return [$src_file, \%include_hash];
+    
+} # parse_preprocessed_output()
+################################################################################
+sub extract_source_file_name($)
+{
+    my $args = shift;
+    
+    my $arg_line = join(" ", @{$args});
+    $arg_line =~ s/\-\S+//
+    
+    
+} # extract_source_file_name($)
+################################################################################
+sub compile_file($)
+{
+    my $cmd = shift;
+    return system($cmd);
+
+} # compile_file()
+################################################################################
+sub expand_list_without_one($)
+{
+    my $listref = shift;
+    
+    my @ret_list = ();
+    
+    my $nlist = scalar(@{$listref});
+    
+    
+    for (my $i = 0; $i < $nlist; $i++)
+    {
+        my @sublist = ();
+        
+        for (my $j = 0; $j < $nlist; $j++)
+        {
+            
+            push(@sublist, $listref->[$j]) if ($j != $i);
+            
+        }
+        
+        
+        push @ret_list, \@sublist;
+        
+    }
+    
+    
+    return (wantarray)?@ret_list:\@ret_list;
+    
+} # expand_list_without_one()
+################################################################################
+sub compare_file($$)
+{
+    my $file1 = shift;
+    my $file2 = shift;
+    
+    my $cmd = "$DIFF -q $file1 $file2"; 
+    
+    return system("$cmd > /dev/null 2>&1");
+    
+} # compare_file()
+################################################################################
+sub validate_macro($)
+{
+    my $cmd = shift;
+    
+    $cmd .= " -S";
+    
+    return system("$cmd > /dev/null 2>&1");
+} # validate_macro()
+################################################################################
+sub validate_include_path($)
+{
+    my $cmd = shift;
+    
+    $cmd .= " -E";
+    
+    return system("$cmd > /dev/null 2>&1");
+   
+    
+} # validate_include_path()
+################################################################################
+
+sub include_to_string($)
+{
+    my $include = shift;
+    
+    return "-I$include";
+    
+} # include_to_string()
+################################################################################
+sub macro_to_string($)
+{
+    my $mdata = shift;
+    
+    my $macro = $mdata->[0];
+    my $value = $mdata->[1];
+    
+    if (defined $value)
+    {
+        return "-D$macro=\"$value\"";
+    }
+    else
+    {
+        return "-D$macro";
+    }
+    
+    
+} # macro_to_string()
+################################################################################
+sub macro_list_to_string($)
+{
+    my $listref = shift;
+    my @ret_data = ();
+    
+    for my $m (@{$listref})
+    {
+        push @ret_data, macro_to_string($m);
+    }
+    
+    return join(" ", @ret_data);
+    
+} # macro_list_to_string()
+################################################################################
+sub include_list_to_string($)
+{
+    
+    my $listref = shift;
+    my @ret_data = ();
+    
+    for my $i (@{$listref})
+    {
+        push @ret_data, include_to_string($i);        
+    }
+    
+    
+    return join(" ", @ret_data);
+    
+} # include_list_to_string()
+################################################################################
+sub check_redundant_macros($$$$)
+{
+    my $gcc = shift;
+    my $includes = shift;
+    my $macros = shift;
+    my $args = shift;
+
+
+    my $include_str = include_list_to_string($includes);
+
+    my @golden_args = get_new_output_file($args, 'S', '.golden');
+    my $golden_object = $golden_args[$#golden_args]; $golden_object =~ s/^\-o//;   
+    my $golden_arg_str = join(" ", @golden_args);
+    my @golden_macros = map {macro_to_string($_)} @{$macros};
+    my $golden_macro_string = join(" ", @golden_macros);
+    my $golden_cmd_str_prefix = "$gcc $golden_arg_str $golden_macro_string $include_str";
+    my $golden_cmd_str = "$golden_cmd_str_prefix";
+
+    my $golden_status = validate_macro($golden_cmd_str);
+    if ($golden_status)
+    {
+        print "$PROGNAME: Error: Failed to get assembly on file. Skipping this file.\n";
+        return;
+    }
+
+    
+    my @sargs = get_new_output_file($args, 'S', '');
+    my $object = $sargs[$#sargs]; $object =~ s/^\-o//;   
+    my $arg_str = join(" ", @sargs);
+    my $cmd_str_prefix = "$gcc $arg_str $include_str";
+    
+    my @macro_lists = expand_list_without_one($macros);
+    
+    my @macro_str = ();
+
+    my $i = 0;
+    for my $mlist (@macro_lists)
+    {
+        my $current_macro = macro_to_string($macros->[$i]);
+        my $macro_str = macro_list_to_string($mlist);
+        my $cmd_str = "$cmd_str_prefix $macro_str";
+        my $result = validate_macro($cmd_str);
+        
+        ++$i;
+        
+        if ($result) # If failed to get the assembly, then it's definitely used
+        {
+            print "USED:   $current_macro\n" if ($MODE_USED);
+        }
+        else
+        {
+            # If it has return success code, then we need an additional check
+            my $status = compare_file($golden_object, $object);
+            if ($status)
+            {
+                print "USED:   $current_macro\n" if ($MODE_USED);
+            }
+            else
+            {
+                print "UNUSED: $current_macro\n";
+                
+            }
+        }
+        
+        
+        push @macro_str, $current_macro if ($result && $MODE_LINE);
+        unlink $object || warn "$PROGNAME: Warning: unlink(): $object: $!\n";
+        
+    }
+    
+    print "MACROS: " . join(" ", @macro_str) . "\n" if (scalar(@macro_str) && $MODE_LINE);
+    
+    unlink $golden_object || warn "$PROGNAME: Warning: unlink(): $golden_object: $!\n";
+
+} # check_redundant_macros()
+################################################################################
+sub check_redundant_include_paths($$$$)
+{
+    my $gcc = shift;
+    my $includes = shift;
+    my $macros = shift;
+    my $args = shift;
+    
+    my $prep_data = optimize_includes($gcc, $macros, $includes, $args);
+    return if (! defined $prep_data);
+    
+    my $arg_str = join(" ", @{$args});
+    my $macro_str = macro_list_to_string($macros);
+    my $cmd_str_prefix = "$gcc $arg_str $macro_str";
+    
+    my @include_lists = expand_list_without_one($includes);
+    my @include_str = ();
+    
+    my %unused_incs = ();
+    my %used_incs = ();
+    
+    
+    
+    my $i = 0;
+    for my $inclist (@include_lists)
+    {
+        
+        my $current_include_path = include_to_string($includes->[$i]);
+        
+        my $inc_str = include_list_to_string($inclist);
+        
+#        my $cmd_str = "$cmd_str_prefix $inc_str";
+#        my $result = validate_include_path($cmd_str);
+        
+        ++$i;
+        
+        
+        $current_include_path =~ s/\/+$//;
+        my $pure_include_path = $current_include_path;
+        $pure_include_path =~ s/^\-I//;
+        
+        if ($pure_include_path =~ /(.*)\s*\{(\S+)\}/)
+        {
+            my $path_base = $1;
+            my @subdirs  = split(/,/,$2);
+            
+            my @final_subdirs = ();
+            my @unused_subdirs = ();
+            
+            for my $subdir (@subdirs)
+            {
+                my $inc_path = "$path_base$subdir";
+                
+                if (exists $prep_data->{$inc_path})
+                {
+                    push @final_subdirs, $subdir;
+                }
+                else
+                {
+                    push @unused_subdirs, $subdir;
+                }
+            }
+            
+            if (scalar @unused_subdirs)
+            {
+                
+                print "UNUSED: " . join(',', @unused_subdirs) . " is/are unused in -I$path_base\{...\}\n";
+                
+            }
+            
+            my $n_used = scalar @final_subdirs;
+            if ($n_used > 0)
+            {
+                my $used_str = undef;
+                
+                if ($n_used == 1)
+                {
+                    $used_str = "-I$path_base" . $final_subdirs[0];
+                }
+                else
+                {
+                    $used_str = "-I$path_base" . '{'. join(',', @final_subdirs) .'}';
+                }
+
+                
+
+                print "USED:   $used_str\n" if ($MODE_USED);
+                push @include_str, $used_str if ($MODE_LINE);
+                
+                
+            }
+            
+        }
+        else
+        {
+            if (exists $prep_data->{$pure_include_path})
+            {
+                print "USED:   $current_include_path\n" if ($MODE_USED);
+            push @include_str, $current_include_path if ($MODE_LINE);
+            }
+            else
+            {
+                print "UNUSED: $current_include_path\n";
+    
+            }
+                
+            
+        }
+
+    }
+
+    
+    print "INCLS:  " . join(" ", @include_str) . "\n" if (scalar(@include_str) && $MODE_LINE);
+
+
+} # check_redundant_include_paths()
+################################################################################
+sub get_new_output_file($$$)
+{
+    my $lref = shift;
+    my $suffix = shift;
+    my $ext = shift;
+    
+    my @new_args = ();
+
+    my $obj_is_set = 0;
+    
+    my $nargs = scalar @{$lref};
+    my $i = 0;
+
+    my $object = undef;
+
+    for (my $i = 0; $i < $nargs; $i++)
+    {
+        my $curr_arg = $lref->[$i];
+        
+        if ($curr_arg =~ /^\-o/)
+        {
+            if ($curr_arg =~ /^\-o(\S+)$/)
+            {
+                $object = $1;
+                next;
+            }
+            elsif ($curr_arg eq '-o')
+            {
+                $object = $lref->[$i + 1];
+                ++$i;
+                next;
+            }
+            
+        }
+
+        push @new_args, $curr_arg;
+        
+    }
+    
+    if (defined $object)
+    {
+        $object = File::Basename::basename($object);
+        $object =~ s/\.\S+$/\.$suffix/;
+    }
+    else
+    {
+        $object = 'gwcc_out.' + $suffix;
+    }
+    
+    $object .= $ext if (defined $ext && $ext ne '');    
+    
+    push @new_args, "-o$object";
+    
+    
+    return (wantarray)?@new_args:\@new_args;
+    
+} # get_new_output_file()
+################################################################################
+sub get_macro_incpath_lists($)
+{
+    my $arglist = shift;
+    my $argstr = join('%@', @{$arglist});
+    
+    $argstr =~ s/\-D(%@)+/\-D/g;
+    $argstr =~ s/\-I(%@)+/\-I/g;
+    
+    my @args = split(/%@/, $argstr);
+    
+    my @incs = ();
+    my @macs = ();
+    my @rest = ();
+    
+    my %dup_incs = ();
+    my %dup_macros = ();
+    
+    for my $arg (@args)
+    {
+        if ($arg =~ /\-D(.*)/)
+        {
+            my ($name, $value) = split(/\s*=\s*/, $1);
+            
+            if (exists $dup_macros{$name})
+            {
+                if ($value eq $dup_macros{$name})
+                {
+                    print "DUP: $arg. Skipping.\n";
+                }
+                else
+                {
+                    print "REDEF: $arg (prev value: $dup_macros{$name}. Last value will be used)\n";
+                    $dup_macros{$name} = $value;
+                    
+                    for (my $i = 0; $i <= $#macs; $i++)
+                    {
+                        if ($macs[$i]->[0] eq $name)
+                        {
+                            $macs[$i]->[1] = $value;
+                            last;
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                $dup_macros{$name} = $value;
+                push @macs, [$name, $value];
+            }
+            
+            next;
+        
+        }
+        
+        if ($arg =~ /\-I(.*)/)
+        {
+        
+            
+            my $incdir = $1;
+            
+                      
+            if ($incdir =~ /(.*)\s*\{(\S+)\}/)
+            {
+          
+                my $path_base = $1;                
+                my @subdirs = split(/,/, $2);
+                
+                my @final_subdirs = ();
+                
+                foreach my $subdir (@subdirs)
+                {
+                    my $inc_path = "$path_base$subdir";
+                    # Removing doubled slashes if appear (should not though)
+                    $inc_path =~ s/\/{2,}/\//g;
+                    
+                    my $incdir_resolved = Cwd::abs_path($inc_path);
+                    if (exists $dup_incs{$incdir_resolved})
+                    {
+                        
+                        my $duplicate = "$path_base\{...,$subdir,...\}";
+                        my $origin = (defined $dup_incs{$incdir_resolved}->[1])?"$path_base\{...,$dup_incs{$incdir_resolved}->[2],...\}":$dup_incs{$incdir_resolved}->[0];
+                        print "DUP: $duplicate is duplicate of $origin. Skipped.\n";                                            
+                    }
+                    else
+                    {
+                        $dup_incs{$incdir_resolved} = [$incdir, $path_base, $subdir];
+                        push @final_subdirs, $subdir;
+                    }
+                }
+                
+                my $subs_found = scalar @final_subdirs;
+                if ($subs_found)
+                {
+                    
+                    if ($subs_found == 1)
+                    {
+                        
+                        push @incs, $path_base . $final_subdirs[0];
+                    }
+                    else
+                    {
+                        push @incs, $path_base . '{' . join(',',@final_subdirs) . '}';
+                        
+                    }
+                }
+            
+            
+            
+            }
+            else
+            {
+                my $incdir_resolved = Cwd::abs_path($incdir);
+
+                if (exists $dup_incs{$incdir_resolved})
+                {
+                    my $origin = (defined $dup_incs{$incdir_resolved}->[1])?"$dup_incs{$incdir_resolved}->[1]\{...,$dup_incs{$incdir_resolved}->[2],...\}":$dup_incs{$incdir_resolved}->[0];                    
+                    print "DUP: $incdir is duplicate of $origin. Skipped.\n";                                            
+
+                    
+                    
+                }
+                else
+                {
+                    $dup_incs{$incdir_resolved} = [$incdir, undef, undef];
+                    push @incs, $incdir;
+                }
+            
+            }
+            
+            
+            next;
+        }
+        
+        push @rest, $arg;
+        
+    }
+    
+    
+    return (\@incs, \@macs, \@rest);
+    
+} # get_macro_incpath_lists()
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+    my $status = shift;
+
+print qq!$PROGNAME                       LTXC                     $PROGNAME
+
+NAME
+  $PROGNAME - LTXC - A wrapper to gcc/g++ to report unused macro definitions
+  and include path directives (-D and -I options of C/C++ compiler)
+  
+SYNOPSYS
+  $PROGNAME [option] compiler [compiler_args]...
+
+DESCRIPTION
+  A wrapper which calls compiler with compiler_args, does some pre-processing
+  of compiler arguments and reports the unused -I and -D directives.
+  
+  Assumes replacement of actual C compiler by prefixed one, e.g. in make file
+  if CC = gcc, then should be changed to CC = $PROGNAME gcc
+
+OPTIONS
+    
+  -n[oenv]           Ignore environment variables (see in ENVIRONMENT)
+  -u[sed]            Display used -D and -I options too
+  -l[ine]            Print ready-to-use -D and -I sequences
+  -a[ll]             Equivalent to -used -line
+
+  -h[elp]            Print this help screen and exit
+  
+  Note: only ONE command line argument may be used which should be next to
+  gwcc command.
+   
+    
+ENVIRONMENT
+  GWCC_PRINT_USED  - When defined, used -D and -I options are also displayed
+  GWCC_PRINT_LINE  - When defined ready-to-use -D and -I directive sequences
+                     are printed
+
+RESTRICTIONS
+  Tested with GNU C/C++ compilers only.
+
+SEE ALSO
+  gcc(1) g++(1)
+
+AUTHOR
+  Ruben Ghafadaryan (ruben_ghafadaryan\@ltxc.com)
+
+REVISION HISTORY
+   06-04-11 - thovhann - fixed wrong detection of unused include paths (rev. 0.12)
+   04-04-11 - thovhann - added non-existent directory reporting (rev. 0.11)
+   21-03-11 - rghafada - fixed duplicate report output (rev. 0.10)
+   24-03-11 - rghafada - added \{\} support for make paths (rev. 0.9)
+   22-03-11 - rghafada - fixed redundand shift when no gwcc arg used (rev. 0.8)
+   21-03-11 - rghafada - fixed improper handling of -noenv argument (rev. 0.7)
+   17-03-11 - rghafada - added unused -I detection based on -E data (rev. 0.6)
+   15-03-11 - rghafada - added differing of assembly files (rev. 0.5)
+   28-02-11 - rghafada - fixed include duplication reporting (rev. 0.4)
+   25-01-11 - rghafada - added command line args (rev. 0.3)
+   24-01-11 - rghafada - updated man page (rev. 0.2)
+   20-01-11 - rghafada - created (rev. 0.1)\n!;
+
+   
+    exit($status);
+} # show_help()
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################

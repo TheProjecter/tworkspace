@@ -1,0 +1,224 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+###############################################################################
+use File::Basename;
+use File::Copy;
+use Time::HiRes qw(tv_interval gettimeofday);
+use List::Util qw(min max);
+use XML::Simple;
+use Data::Dumper;
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME 				= basename($0);
+my $PROGVER 				= "0.1";
+my $config_file 			= "config.xml";
+
+#== configutations of the $config_file ==
+my %config;
+
+#== global datas
+# conteins the followings 
+# 0 runtime - the execution time of a build unit
+# 1 duplicates - the duplicated include paths
+# 2 unuseds - the unused include paths
+# 3 errors - the compilation errors in a build unit
+my @data;
+
+my %wrong_inc_paths;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub read_config();
+sub get_makefiles();
+sub analyze_project($);
+sub do_compile($$);
+
+# currently this functions are not using, 
+# but they can be useful in future so 
+# I live them here
+sub get_argument($);
+sub has_argument($);
+
+# this functions shold be ased only for loging
+# currently they are not implemented
+sub report_project_name($);
+sub report_duplicates($);
+sub report_unused_params($);
+sub report_errors($);
+
+###############################################################################
+# Main Block 
+###############################################################################
+if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/)  {
+	show_help(0);
+	shift;
+}
+
+read_config();
+#open (my $log, ">$config{log}") or die "Cannot open log file. $!";
+
+get_makefiles();
+foreach (@data) {
+	analyze_project($_);
+}
+XMLout(\@data, OutputFile=>$config{'output'});
+
+#close ($log);
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#=============================================================================
+# reads config_file
+sub read_config()
+{
+	# getting all inputs from the config_file
+	my $xml_config = XML::Simple->new();
+	my $config_ref = $xml_config->XMLin($config_file);
+# DEBUG
+	#print Dumper($config_ref);
+# END
+	%config = %$config_ref;
+}
+
+#=============================================================================
+# returns 1 if in the arguments list there is given argument, otherwise returns
+# 0
+sub has_argument($)
+{
+	my ($p) = @_;
+	if(join(" ", @ARGV) =~ /-?$p/) {
+		return 1;	
+	} else {
+		return 0;	
+	}
+}
+
+#=============================================================================
+# builds projects corresponding to the data list
+sub get_argument($)
+{
+	my ($p) = @_;
+	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"]([\w|\/]*)[ |\$|"]*/) {
+		return $2;
+	}
+	return undef;
+}
+
+#=============================================================================
+# returns project compilation time.
+sub do_compile($$)
+{
+	my ($i, $project) = @_;
+	my $start = gettimeofday();
+	my $output = "$config{'tempdir'}/compilation.out";
+	system("gmake -C $config{'prefix'}$project >& $output");
+	$i->{'runtime'} = gettimeofday() - $start;
+	open(OUT, $output) or die "Cannot open $output. $!";
+	my @content = <OUT>;
+	my @errors;
+	my @duplicates;
+	my @unuseds;
+	foreach (@content) {
+		push(@errors, $1) if (/(.*Error\s.?).*/);
+		push(@duplicates, $1) if (/^DUP:\s(.*)is duplicate(.*)$/);
+		push(@unuseds, $1) if (/^UNUSED:\s(.*)$/);
+	}
+	@{$i->{'duplicates'}} = @duplicates;
+	@{$i->{'unuseds'}} = @unuseds;
+	@{$i->{'errors'}} = @errors;
+	close(OUT);
+	unlink($output);
+}
+
+#=============================================================================
+# compares all the data whth the converted makefles with the old ones.
+sub analyze_project($)
+{
+	my ($i) = @_;
+	if ($i->{'name'} =~ /(.*)\/[M|m]akefile/) {
+		my $project = $1;
+		system("gmake -C $config{'prefix'}$project clean >& /dev/null");
+		do_compile($i, $project);
+	} else {
+		print "$_ - is not an proper makefile\n";
+	}
+}
+
+#=============================================================================
+# reads makefiles list and stores them in the global hash 'makefiles'
+sub get_makefiles()
+{
+	if (! defined $config{'makefiles'} or ! -e $config{'makefiles'}) {
+		die "$config{'makefiles'} does not exists. $!" ;
+	}
+	open (FILE, $config{'makefiles'}) or die "Can't open $config{'makefiles'}";
+	while (<FILE>) {
+		next if (m/^(\s)*$/);	
+		chomp;
+		if (/.*\/[M|m]akefile/) {
+			push(@data, {
+					'name' => $_,
+					'runtime' => 0,
+					'duplicates' => [],
+					'unuseds' => [],
+					'errors' => [], 
+				}
+				)
+		} else {
+			print "$_ - is not an proper makefile\n";
+		}
+	}
+	close (FILE);
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+    my $status = shift;
+
+print qq!$PROGNAME                     LTXC                     $PROGNAME
+
+NAME
+  $PROGNAME - LTXC - A script which find duplicated -I option of C/C++ compiler
+	in the makefiles  
+
+SYNOPSYS
+  $PROGNAME [option] list_of_makefiles
+
+DESCRIPTION
+
+OPTIONS
+  -h[elp]            Print this help screen and exit
+  -c 			 	 To compare current versions of projects with the old ones 
+  -d 			 	 To write duplicated include paths list into a xml file  
+  -u 			 	 To write unused include paths list into a xml file
+    
+ENVIRONMENT
+
+RESTRICTIONS
+  Tested with GNU C/C++ compilers only.
+
+SEE ALSO
+  gcc(1) g++(1)
+
+AUTHOR
+  Tigran Hovhannisyan (tigran_hovhannisyan\@ltxc.com)
+
+REVISION HISTORY
+!;
+    exit($status);
+} # show_help()
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
