@@ -1,0 +1,54 @@
+bldr_path  := /u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/tbuilder
+export core_path  := /u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/tbuilder/core
+export product_root  := /u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/test
+test_root := $(shell pwd)
+bin_dir	:= $(test_root)/bin
+obj_dir	:= $(test_root)/obj
+lib_dir	:= $(test_root)/lib
+dep_dir	:= $(test_root)/dep
+
+cpp_files 	+= main.cpp
+cflags	  	+= -I. -I$(product_root)/src -I/$(utilities_path) \
+		   -DTEST_ROOT=\"$(test_root)\"
+
+lflags	  	+= 
+project_name	= $(notdir $(test_root))
+
+SHELL		= /bin/sh
+
+.PHONY: all prepare
+all : prepare exe
+	@echo "project_path=$(test_root)" >> run
+	@echo "source $(bldr_path)/core/scripts/colors.sh" >> run
+	@echo "product_root=$(product_root)" >> run
+	@cat $(bldr_path)/templates/tst_run >> run
+
+prepare : 
+	@echo "#!/bin/bash" > $(test_root)/run
+	@echo "export LD_LIBRARY_PATH=$(lib_dir)" >> $(test_root)/run
+	@echo $(bin_dir)/$(project_name) >> $(test_root)/run
+	@chmod a+x  $(test_root)/run
+	@mkdir -p $(obj_dir)/$(project_name)
+	@mkdir -p $(bin_dir)
+	@mkdir -p $(lib_dir)
+
+include $(core_path)/exe.mk
+include $(core_path)/clean.mk
+
+#
+# Copyright © 2010 Tigran Hovhannisyan, Armenia
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free
+# Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#

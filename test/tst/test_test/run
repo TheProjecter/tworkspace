@@ -1,0 +1,51 @@
+#!/bin/bash
+export LD_LIBRARY_PATH=/u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/test/tst/test_test/lib
+/u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/test/tst/test_test/bin/test_test
+project_path=/u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/test/tst/test_test
+source /u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/tbuilder/core/scripts/colors.sh
+product_root=/u/thovhann/Desktop/gnu_make/tworkspace/branches/old_system/test
+
+test_name=${project_path##*/}
+
+gouts=`ls $project_path/outputs/`
+result=$project_path/result.txt
+
+status=pass
+echo > $result
+for i in $gouts
+do
+        if [ ${i: -4} = "gout" ]; then
+                output=${i: 0: `expr length $i`-5}
+                echo -n $output >> $result
+                if [ -a "$project_path/outputs/$output.out" ]; then
+                        mkdir -p $project_path/diff;
+                        diff $project_path/outputs/$output.out $project_path/outputs/$i > $project_path/diff/$output ;
+                        ___l=`wc -l $project_path/diff/$output`;
+                        if [ "0" = ${___l% *} ]; then
+                             echo " - pass" >> $result
+                        else 
+                             echo " - fail" >> $result   
+                             status=fail
+                        fi
+                fi
+        fi
+done
+
+test_result="$test_name\t\t\t"
+echo -e -n " > ${message_color}$test_name - ${reset_color}"
+if [ "fail" = "$status" ]; then
+        echo -e "${fail_color}fail${reset_color}"
+        test_result+="fail"
+else
+        echo -e "${pass_color}pass${reset_color}"
+        test_result+="pass"
+fi
+
+line="-----------------------------------------------------------"
+test_results_file=$product_root/test_results.txt
+
+echo $line >> $test_results_file 
+echo -e -n "$test_result" >> $test_results_file
+echo -e "\t0.62s" >> $test_results_file
+echo $line >> $test_results_file
+
