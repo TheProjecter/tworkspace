@@ -1,0 +1,103 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+
+###############################################################################
+use File::Basename;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub has_argument($);
+sub get_argument($);
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "";
+
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+my $config = get_argument('config');
+if (! defined $config) {
+	$config = "config.xml";
+}
+system("./analyzer -config=$config");
+system("./optimizer -unused -config=$config");
+system("./analyzer -config=$config");
+system("./optimizer -dup -config=$config");
+###############################################################################
+# Subroutine definitions
+###############################################################################
+
+#=============================================================================
+# returns 1 if in the arguments list there is given argument, otherwise returns
+# 0
+sub has_argument($)
+{
+	my ($p) = @_;
+	if(join(" ", @ARGV) =~ /-?$p/) {
+		return 1;	
+	} else {
+		return 0;	
+	}
+}
+
+#=============================================================================
+# builds projects corresponding to the data list
+sub get_argument($)
+{
+	my ($p) = @_;
+	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"](.*)[ |\$|"]*/) {
+		return $2;
+	}
+	return undef;
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+	my $status = shift;
+	print qq!$PROGNAME
+
+	NAME
+		$PROGNAME - Description  
+
+		SYNOPSYS
+			$PROGNAME [option] makefiles_list
+
+			DESCRIPTION
+
+			OPTIONS
+				-h[elp]            Print this help screen and exit
+
+
+				ENVIRONMENT
+
+				RESTRICTIONS
+					Tested with GNU C/C++ compilers only.
+
+					SEE ALSO
+						gcc(1) g++(1)
+
+						AUTHOR
+							Tigran Hovhannisyan 
+
+							REVISION HISTORY
+							!;
+							exit($status);
+} # show_help()
+
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
+
