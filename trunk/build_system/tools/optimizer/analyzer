@@ -61,16 +61,17 @@ if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/)  {
 	shift;
 }
 
+$config_file = get_argument('config');
+if (! defined $config_file) {
+	die("Error: couldn't find config file.$!");
+}
 read_config();
-#open (my $log, ">$config{log}") or die "Cannot open log file. $!";
 
 get_makefiles();
 foreach (@data) {
 	analyze_project($_);
 }
-XMLout(\@data, OutputFile=>$config{'output'});
-
-#close ($log);
+XMLout(\@data, OutputFile=>$config{'analyzes'});
 
 ###############################################################################
 # Subroutine definitions
@@ -107,7 +108,7 @@ sub has_argument($)
 sub get_argument($)
 {
 	my ($p) = @_;
-	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"]([\w|\/]*)[ |\$|"]*/) {
+	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"](.*)[ |\$|"]*/) {
 		return $2;
 	}
 	return undef;
@@ -129,7 +130,7 @@ sub do_compile($$)
 	my @unuseds;
 	foreach (@content) {
 		push(@errors, $1) if (/(.*Error\s.?).*/);
-		push(@duplicates, $1) if (/^DUP:\s(.*)is duplicate(.*)$/);
+		push(@duplicates, "-I$1") if (/^DUP:\s(.*)\sis duplicate(.*)$/);
 		push(@unuseds, $1) if (/^UNUSED:\s(.*)$/);
 	}
 	@{$i->{'duplicates'}} = @duplicates;
@@ -157,27 +158,33 @@ sub analyze_project($)
 # reads makefiles list and stores them in the global hash 'makefiles'
 sub get_makefiles()
 {
-	if (! defined $config{'makefiles'} or ! -e $config{'makefiles'}) {
-		die "$config{'makefiles'} does not exists. $!" ;
-	}
-	open (FILE, $config{'makefiles'}) or die "Can't open $config{'makefiles'}";
-	while (<FILE>) {
-		next if (m/^(\s)*$/);	
-		chomp;
-		if (/.*\/[M|m]akefile/) {
-			push(@data, {
-					'name' => $_,
-					'runtime' => 0,
-					'duplicates' => [],
-					'unuseds' => [],
-					'errors' => [], 
-				}
-				)
-		} else {
-			print "$_ - is not an proper makefile\n";
+	if(ref($config{'makefiles'}) eq 'ARRAY') {
+		foreach (@{$config{'makefiles'}}) {
+			next if (m/^(\s)*$/);	
+			chomp;
+			if (/.*\/[M|m]akefile/) {
+				push(@data, {
+						'name' => $_,
+						'runtime' => 0,
+						'duplicates' => [],
+						'unuseds' => [],
+						'errors' => [], 
+					}
+					);
+			} else {
+				print "$_ - is not an proper makefile\n";
+			}
 		}
+	} else {
+		push(@data, {
+				'name' => $config{'makefiles'},
+				'runtime' => 0,
+				'duplicates' => [],
+				'unuseds' => [],
+				'errors' => [], 
+			}
+			);
 	}
-	close (FILE);
 }
 
 #===============================================================================
