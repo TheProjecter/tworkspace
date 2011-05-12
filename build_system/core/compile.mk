@@ -9,7 +9,7 @@ $(bin_path) :
 	@$(mkdir) -p $(bin_path)
 
 %.o : %.cpp
-	@$(CXX) -c -MMD $(CFLAGS) $(CPPFLAGS) $<
+	@$(CXX) -c -MMD $(CFLAGS) $< $(CPPFLAGS)
 	@echo "CC $< -> $@"
 
 -include dummy_include $(wildcard *.d)

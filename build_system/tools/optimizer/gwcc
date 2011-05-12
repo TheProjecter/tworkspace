@@ -101,7 +101,7 @@ if (scalar @{$includes})
 
 if (scalar @{$macros})
 {
-    check_redundant_macros($CXX, $includes, $macros, $args);
+    #check_redundant_macros($CXX, $includes, $macros, $args);
 }
 
 
@@ -125,6 +125,7 @@ sub optimize_includes($$$$)
     my $prec_cmd_str = "$prec_cmd_str_prefix";
     
     my $prec_status = validate_include_path($prec_cmd_str);
+
     if ($prec_status)
     {
         print "$PROGNAME: Error: Failed to get pre-compiled output for file. Skipping this file.\n";
@@ -651,7 +652,7 @@ sub get_new_output_file($$$)
     }
     else
     {
-        $object = 'gwcc_out.' + $suffix;
+        $object = 'gwcc_out.' . $suffix;
     }
     
     $object .= $ext if (defined $ext && $ext ne '');    

@@ -29,10 +29,17 @@ my $config = get_argument('config');
 if (! defined $config) {
 	$config = "config.xml";
 }
-system("./analyzer -config=$config");
-system("./optimizer -unused -config=$config");
-system("./analyzer -config=$config");
-system("./optimizer -dup -config=$config");
+my $path = get_argument('path');
+if (! defined $path) {
+	$path = ".";
+}
+
+system("$path/analyzer -config=$config");
+system("$path/optimizer -unused -config=$config");
+system("$path/analyzer -config=$config");
+system("$path/optimizer -dup -config=$config");
+
+system("make clean >& /dev/null");
 ###############################################################################
 # Subroutine definitions
 ###############################################################################
@@ -43,11 +50,7 @@ system("./optimizer -dup -config=$config");
 sub has_argument($)
 {
 	my ($p) = @_;
-	if(join(" ", @ARGV) =~ /-?$p/) {
-		return 1;	
-	} else {
-		return 0;	
-	}
+	return (join(" ", @ARGV) =~ /-$p/);
 }
 
 #=============================================================================
@@ -55,8 +58,13 @@ sub has_argument($)
 sub get_argument($)
 {
 	my ($p) = @_;
-	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"](.*)[ |\$|"]*/) {
+	my $arguments = "&" . join('&', @ARGV);
+	if ($arguments =~ /(.*)\&-$p[ |=|"](.*)[\&]/) {
 		return $2;
+	} else {
+		if ($arguments =~ /(.*)\&-$p[ |=|"](.*)/) {
+			return $2;
+		}
 	}
 	return undef;
 }

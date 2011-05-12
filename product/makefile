@@ -36,3 +36,8 @@ check:
 		$(MAKE) -C $$i check; \
 	done
 	
+optimize:
+	+@for i in $(projects); do \
+		$(MAKE) -C $$i optimize; \
+	done
+	

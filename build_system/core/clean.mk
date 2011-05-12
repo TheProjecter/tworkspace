@@ -6,3 +6,4 @@ clean:: .settings.mk
 
 distclean:: clean
 	$(rm) -f .settings.mk
+	$(rm) -f config.xml
