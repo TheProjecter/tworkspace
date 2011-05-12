@@ -39,6 +39,8 @@ sub read_config();
 sub get_makefiles();
 sub analyze_project($);
 sub do_compile($$);
+sub normalize($);
+sub remove_duplicates($);
 
 # currently this functions are not using, 
 # but they can be useful in future so 
@@ -108,10 +110,40 @@ sub has_argument($)
 sub get_argument($)
 {
 	my ($p) = @_;
-	if (join(' ', @ARGV) =~ /(.*)?-$p[ |=|"](.*)[ |\$|"]*/) {
+	my $arguments = "&" . join('&', @ARGV);
+	if ($arguments =~ /(.*)\&-$p[ |=|"](.*)[\&]/) {
 		return $2;
+	} else {
+		if ($arguments =~ /(.*)\&-$p[ |=|"](.*)/) {
+			return $2;
+		}
 	}
 	return undef;
+}
+
+#=============================================================================
+# adds / (slash) at the end of the argument if there are not one
+sub normalize($)
+{
+	my ($a) = @_;
+	if ($a =~ /(.*)\.$/) {
+		$a = $1;
+	}
+	if ($a =~ /.*\/$/) {
+		return $a;
+	} else {
+		return "$a\/";
+	}
+}
+
+#=============================================================================
+# returns given arrays reference without duplicated elements on it
+sub remove_duplicates($)
+{
+	my ($all) = @_;
+	my %a = map {$_ => 1} @$all;
+	my @r = keys %a;
+	return \@r;
 }
 
 #=============================================================================
@@ -126,16 +158,20 @@ sub do_compile($$)
 	open(OUT, $output) or die "Cannot open $output. $!";
 	my @content = <OUT>;
 	my @errors;
-	my @duplicates;
+	my %duplicates;
 	my @unuseds;
 	foreach (@content) {
-		push(@errors, $1) if (/(.*Error\s.?).*/);
-		push(@duplicates, "-I$1") if (/^DUP:\s(.*)\sis duplicate(.*)$/);
-		push(@unuseds, $1) if (/^UNUSED:\s(.*)$/);
+		push(@errors, normalize($1)) if (/(.*Error\s.?).*/);
+			if (/^DUP:\s(.*)\sis duplicate of (.*) Skipped\.$/) {
+				if (! grep {$_ eq normalize("-I$2")} keys %duplicates) {
+					$duplicates{normalize("-I$1")} = normalize("-I$2");
+				}
+			}
+		push(@unuseds, normalize("$1\/")) if (/^UNUSED:\s(.*)$/);
 	}
-	@{$i->{'duplicates'}} = @duplicates;
-	@{$i->{'unuseds'}} = @unuseds;
-	@{$i->{'errors'}} = @errors;
+	@{$i->{'duplicates'}} = keys %duplicates;
+	$i->{'unuseds'} = remove_duplicates(\@unuseds);
+	$i->{'errors'} = remove_duplicates(\@errors);
 	close(OUT);
 	unlink($output);
 }

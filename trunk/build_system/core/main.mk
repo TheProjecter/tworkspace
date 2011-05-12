@@ -1,4 +1,6 @@
 
+SHELL=/bin/bash
+
 binary :=
 ifeq ($(binary_type),shared_library)
 	binary := shared_library
@@ -11,9 +13,9 @@ ifeq ($(binary_type),exe)
 endif
 
 ifeq ($(build_type),debug)
-	CFLAGS	+= -g -DDEBUG
+	CPPFLAGS	+= -g -DDEBUG
 else
-	CFLAGS	+= -O2
+	CPPFLAGS	+= -O2
 endif
 
 .PHONY: prebuild compile shared_library executable postbuild check clean \
@@ -36,4 +38,5 @@ include $(build_system)/core/check.mk
 include $(build_system)/core/executable.mk
 include $(build_system)/core/shared_library.mk
 include $(build_system)/core/static_library.mk
+include $(build_system)/core/optimize.mk
 include $(build_system)/core/clean.mk
