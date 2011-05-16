@@ -29,6 +29,8 @@ my $tmp_file;
 #my %unused_inc_paths; # contents unused include paths for all makefiles
 my %all_incs;
 
+my @common_inc_paths;
+
 ###############################################################################
 # Subroutine declarations
 ###############################################################################
@@ -46,7 +48,6 @@ sub clean_duplicates();
 sub remove_inc_from_makefile($$$);
 sub compilation_error($);
 sub clean_unuseds_in_current($);
-sub clean_duplicates_in_current($);
 sub has_argument($);
 sub compact();
 sub devide_content($$);
@@ -60,12 +61,28 @@ if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/)  {
 	shift;
 }
 
+push (@common_inc_paths, "-I/vobs/source/sys/include");
+push (@common_inc_paths, "-I/vobs/dmd/system/include");
+push (@common_inc_paths, "-I/vobs/dmd/system/include/common");
+push (@common_inc_paths, "-I/vobs/dmd/system/include/device");
+push (@common_inc_paths, "-I/vobs/dmd/system/include/services");
+push (@common_inc_paths, "-I/vobs/dmd/system/include/services/DPIN96");
+push (@common_inc_paths, "-I/vobs/dmd/system/include/utl_support");
+push (@common_inc_paths, "-I/vobs/idrivers/support_lib/include");
+push (@common_inc_paths, "-I/opt/ltx/releases/thovhann_UOX_134314.2011-03-21/i686_linux_2.6.9/include");
+push (@common_inc_paths, "-I/user/tools/LINUX/Development/boost/v1.42.0/2.6.9/gcc-4.1.2/include");
+
 $config_file = get_argument('config');
 if (! defined $config_file) {
 	die("Error: couldn't find config file.$!");
 }
 read_configs();
 read_analyzes();
+
+if (defined $config{'errors'}) {
+	die("Error: There are compilation errors.$!");
+}
+
 create_temp_directory();
 get_makefiles();
 get_actual_include_paths();
@@ -231,27 +248,57 @@ sub remove_duplicated($)
 }
 
 #=============================================================================
-# clean given makefile from duplicated include paths
-sub clean_duplicates_in_current($)
+# 
+sub duplicates_of($$$)
 {
-	my ($makefile) = @_;
-	my @to_check;
-	my $duplicated_incs = $analyzes{$makefile}->{'duplicates'};
-	return if (! defined $duplicated_incs);
-	my $all = $all_incs{$makefile};
-	my @accepted_incs;
-	foreach my $i (@$all) {
-		my $add = 1;
-		foreach my $j (@$duplicated_incs) {
-			if ($i eq $j) {
-				$add = 0;
-			}
-		}
-		if ($add) {
-			push (@accepted_incs, $i);
+	my ($inc, $d1, $d2) = @_;
+	my %a;
+	for (my $i = 0; $i < scalar(@$d1); ++$i) 
+	{
+		if ($inc eq $d1->[$i]) {
+			$a{$d2->[$i]} = 1;
 		}
 	}
-	replace_in_makefile($makefile, $config{'varname'}, \@accepted_incs);
+	return keys %a;
+}
+
+#=============================================================================
+# 
+sub clean_duplicates_phase2($$)
+{
+	my ($makefile, $duplicates) = @_;
+	my $all = $all_incs{$makefile};
+	my $d1 = $analyzes{$makefile}->{'duplicates_1'};
+	my $d2 = $analyzes{$makefile}->{'duplicates_2'};
+	my @r_all = reverse(@$all); 
+	my @r_accepted;
+INC:foreach my $i (@r_all) {
+		foreach my $a (@common_inc_paths) {
+			if ($i eq normalize($a)) {
+				next INC;
+			} else {
+				foreach my $b (duplicates_of($i, $d1, $d2)) {
+					if (normalize($a) eq $b) {
+						next INC;
+					}
+				}
+			}
+		}
+
+		for (my $j = 0; $j < scalar(@$duplicates); ++$j) {
+			if ($i eq $duplicates->[$j]) {
+				splice(@$duplicates, $j, 1);
+				next INC;
+			}
+		}
+
+		push (@r_accepted, $i);
+	}
+
+	my @accepted = reverse(@r_accepted);
+	my $z = scalar(@$all) - scalar(@common_inc_paths) - scalar(@accepted);
+	print "  removed $z duplicated include paths.\n";
+	replace_in_makefile($makefile, $config{'varname'}, \@accepted);
 }
 
 #=============================================================================
@@ -268,7 +315,27 @@ sub clean_unuseds_in_current($)
 			splice(@to_check, $#to_check, 1);
 		}	
 	}
+	print "  removed ", scalar(@to_check), "include paths\n";
 	remove_inc_from_makefile($makefile, $config{'varname'}, \@to_check);
+}
+
+#=============================================================================
+# in this phase of cleaning we are removeing unuseful include paths from the
+# "duplicated include paths" list. First, if A is duplicate of B (A->B) so B
+# is duplicate of A as well (B->A), but to use we need only one of them, so
+# this function leave one of them.
+sub clean_duplicates_phase1($)
+{
+	my ($makefile) = @_;
+	my @r;
+	my $d1 = $analyzes{$makefile}->{'duplicates_1'};
+	my $d2 = $analyzes{$makefile}->{'duplicates_2'};
+	for (my $i = 0; $i < scalar(@$d1); ++$i) {
+		if (! grep {$_ eq $d2->[$i]} @r) {
+			push(@r, $d1->[$i]);
+		}
+	}
+	return @r;
 }
 
 #=============================================================================
@@ -283,7 +350,9 @@ sub clean_duplicates()
 			print " ERROR: compile errors without removing any ".
 					"duplicated path in: $makefile.\n";
 		} else {
-			clean_duplicates_in_current($makefile);
+			next if (! defined $analyzes{$makefile}->{'duplicates_1'});
+			my @optimized_duplicates = clean_duplicates_phase1($makefile);
+			clean_duplicates_phase2($makefile, \@optimized_duplicates);
 		}
 	}
 }
@@ -336,7 +405,7 @@ sub get_include_paths_of($$)
 	open TMP_FILE, $tmp_file or die "Cannot open $tmp_file, $!";
 	my @inc_array;
 	while (<TMP_FILE>) {
-		if (/$var_name\s*:?=(.*)$/) {
+		if (/$var_name\s*.?=(.*)$/) {
 			my $inc_path = $1;
 			chop $inc_path;
 			foreach (split(" ", $inc_path)) {
@@ -350,7 +419,8 @@ sub get_include_paths_of($$)
 			}
 		}
 	}
-	$all_incs{$makefile} = remove_duplicated(\@inc_array);
+#	$all_incs{$makefile} = remove_duplicated(\@inc_array);
+	$all_incs{$makefile} = \@inc_array;
 #DEBUG
 	#print Dumper(%all_incs);
 #END

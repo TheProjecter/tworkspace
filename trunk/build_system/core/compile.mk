@@ -4,7 +4,7 @@ dep_files	:= $(subst .cpp,.d,$(cpp_files))
 
 compile : $(obj_files)
 
-$(obj_files) : | $(bin_path)
+$(obj_files) : $(bin_path)
 $(bin_path) :
 	@$(mkdir) -p $(bin_path)
 

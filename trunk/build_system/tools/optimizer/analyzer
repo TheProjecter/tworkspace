@@ -153,24 +153,27 @@ sub do_compile($$)
 	my ($i, $project) = @_;
 	my $start = gettimeofday();
 	my $output = "$config{'tempdir'}/compilation.out";
-	system("gmake -C $config{'prefix'}$project >& $output");
+	system("make -C $config{'prefix'}$project >& $output");
 	$i->{'runtime'} = gettimeofday() - $start;
 	open(OUT, $output) or die "Cannot open $output. $!";
 	my @content = <OUT>;
 	my @errors;
 	my %duplicates;
-	my @unuseds;
+	my %unuseds;
 	foreach (@content) {
 		push(@errors, normalize($1)) if (/(.*Error\s.?).*/);
-			if (/^DUP:\s(.*)\sis duplicate of (.*) Skipped\.$/) {
-				if (! grep {$_ eq normalize("-I$2")} keys %duplicates) {
-					$duplicates{normalize("-I$1")} = normalize("-I$2");
-				}
-			}
-		push(@unuseds, normalize("$1\/")) if (/^UNUSED:\s(.*)$/);
+		if (/^DUP:\s(.*)\sis duplicate of (.*) Skipped\.$/) {
+			push(@{$i->{'duplicates_1'}}, normalize("-I$1"));
+			push(@{$i->{'duplicates_2'}}, normalize("-I$2"));
+		}
+		if (/^UNUSED:\s(.*)$/) {
+			$unuseds{normalize("$1\/")} += 1;
+		}
 	}
-	@{$i->{'duplicates'}} = keys %duplicates;
-	$i->{'unuseds'} = remove_duplicates(\@unuseds);
+	my $z = max(values %unuseds);
+	foreach (keys %unuseds) {
+		push(@{$i->{'unuseds'}}, $_) if ($unuseds{$_} == $z);
+	}
 	$i->{'errors'} = remove_duplicates(\@errors);
 	close(OUT);
 	unlink($output);
@@ -183,7 +186,7 @@ sub analyze_project($)
 	my ($i) = @_;
 	if ($i->{'name'} =~ /(.*)\/[M|m]akefile/) {
 		my $project = $1;
-		system("gmake -C $config{'prefix'}$project clean >& /dev/null");
+		system("make -C $config{'prefix'}$project clean >& /dev/null");
 		do_compile($i, $project);
 	} else {
 		print "$_ - is not an proper makefile\n";
@@ -215,7 +218,8 @@ sub get_makefiles()
 		push(@data, {
 				'name' => $config{'makefiles'},
 				'runtime' => 0,
-				'duplicates' => [],
+				'duplicates_1' => [],
+				'duplicates_2' => [],
 				'unuseds' => [],
 				'errors' => [], 
 			}
