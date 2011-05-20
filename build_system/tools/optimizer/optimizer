@@ -61,17 +61,6 @@ if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/)  {
 	shift;
 }
 
-push (@common_inc_paths, "-I/vobs/source/sys/include");
-push (@common_inc_paths, "-I/vobs/dmd/system/include");
-push (@common_inc_paths, "-I/vobs/dmd/system/include/common");
-push (@common_inc_paths, "-I/vobs/dmd/system/include/device");
-push (@common_inc_paths, "-I/vobs/dmd/system/include/services");
-push (@common_inc_paths, "-I/vobs/dmd/system/include/services/DPIN96");
-push (@common_inc_paths, "-I/vobs/dmd/system/include/utl_support");
-push (@common_inc_paths, "-I/vobs/idrivers/support_lib/include");
-push (@common_inc_paths, "-I/opt/ltx/releases/thovhann_UOX_134314.2011-03-21/i686_linux_2.6.9/include");
-push (@common_inc_paths, "-I/user/tools/LINUX/Development/boost/v1.42.0/2.6.9/gcc-4.1.2/include");
-
 $config_file = get_argument('config');
 if (! defined $config_file) {
 	die("Error: couldn't find config file.$!");
@@ -315,7 +304,7 @@ sub clean_unuseds_in_current($)
 			splice(@to_check, $#to_check, 1);
 		}	
 	}
-	print "  removed ", scalar(@to_check), "include paths\n";
+	print "  removed ", scalar(@to_check), " unused include paths\n";
 	remove_inc_from_makefile($makefile, $config{'varname'}, \@to_check);
 }
 
@@ -328,14 +317,27 @@ sub clean_duplicates_phase1($)
 {
 	my ($makefile) = @_;
 	my @r;
-	my $d1 = $analyzes{$makefile}->{'duplicates_1'};
-	my $d2 = $analyzes{$makefile}->{'duplicates_2'};
-	for (my $i = 0; $i < scalar(@$d1); ++$i) {
-		if (! grep {$_ eq $d2->[$i]} @r) {
-			push(@r, $d1->[$i]);
+	my @d1 = @{$analyzes{$makefile}->{'duplicates_1'}};
+	my @d2 = @{$analyzes{$makefile}->{'duplicates_2'}};
+	for (my $i = 0; $i < scalar(@d1); ++$i) {
+		if ($d1[$i] eq $d2[$i]) {
+			if (! grep {$_ eq $d1[$i]} @r) {
+				push(@r, $d1[$i]);
+			}
+			splice(@d1, $i, 1);
+			splice(@d2, $i, 1);
 		}
 	}
-	return @r;
+	for (my $i = 0; $i < scalar(@d1); ++$i) {
+		if (! grep {$_ eq $d1[$i]} @r) {
+			if (! grep {$_ eq $d2[$i]} @r) {
+				push(@r, $d1[$i]);
+			}
+		}
+	}
+	replace_in_makefile($makefile, $config{'varname'}, \@r);
+	my $z = scalar(@{$all_incs{$makefile}}) - scalar(@r);
+	print "  removed $z duplicated include paths.\n";
 }
 
 #=============================================================================
@@ -351,8 +353,8 @@ sub clean_duplicates()
 					"duplicated path in: $makefile.\n";
 		} else {
 			next if (! defined $analyzes{$makefile}->{'duplicates_1'});
-			my @optimized_duplicates = clean_duplicates_phase1($makefile);
-			clean_duplicates_phase2($makefile, \@optimized_duplicates);
+			clean_duplicates_phase1($makefile);
+			#clean_duplicates_phase2($makefile, \@optimized_duplicates);
 		}
 	}
 }

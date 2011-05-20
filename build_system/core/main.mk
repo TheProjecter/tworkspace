@@ -20,7 +20,7 @@ endif
 
 .PHONY: prebuild compile shared_library executable postbuild check clean \
 		distclean
-.PHONY: all
+.PHONY: all test
 
 all: .settings.mk prebuild compile $(binary) postbuild
 
@@ -30,7 +30,7 @@ all: .settings.mk prebuild compile $(binary) postbuild
 -include .settings.mk
 bin_path	:= $(arch_name)/$(build_type)/
 
-.NOTPARALLEL: all 
+.NOTPARALLEL: all
 .NOTPARALLEL: prebuild $(binary) postbuild
 
 include $(build_system)/core/compile.mk
@@ -40,3 +40,4 @@ include $(build_system)/core/shared_library.mk
 include $(build_system)/core/static_library.mk
 include $(build_system)/core/optimize.mk
 include $(build_system)/core/clean.mk
+include $(build_system)/core/test.mk

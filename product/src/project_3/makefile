@@ -11,5 +11,3 @@ target		:= $(notdir $(CURDIR))
 build_system?= $(BLD_SSTM)
 
 include $(build_system)/core/main.mk
-
-

@@ -7,3 +7,6 @@ clean:: .settings.mk
 distclean:: clean
 	$(rm) -f .settings.mk
 	$(rm) -f config.xml
+	$(MAKE) -C ./unit_tests clean
+	$(rm) -f unit_tests/.settings.mk
+	$(rm) -f unit_tests/config.xml
