@@ -1,4 +1,4 @@
-
+MAKE := make
 projects	:= \
 	src/project_1/\
 	src/project_2/\
@@ -28,7 +28,6 @@ clean:
 distclean: 
 	+@for i in $(projects); do \
 		$(MAKE) -C $$i distclean; \
-		$(MAKE) -C $$i/unit_tests distclean; \
 	done
 
 check:

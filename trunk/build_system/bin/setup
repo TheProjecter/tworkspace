@@ -1,3 +1,3 @@
 #!/bin/bash
 
-export BLD_SSTM=/u/thovhann/Desktop/repository/tworkspace/trunk/build_system
+export BLD_SSTM=/u/thovhann/Desktop/repository/tworkspace/trunk/build_system/

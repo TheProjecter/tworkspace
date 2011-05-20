@@ -2,7 +2,9 @@
 cpp_files	:= main.cpp
 
 CFLAGS		:= 
+
 CPPFLAGS	:= 
+
 LFLAGS		:=
 
 build_type	?= debug
