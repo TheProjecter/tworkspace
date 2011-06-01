@@ -14,18 +14,37 @@
 	<div id='adding'>
 		<h1>Adding</h1>
 		<div class='form_container'>	
-			<?=form_open('users/add')?>
+			<?=form_open('users/create')?>
 				<?=form_fieldset('User adding form')?>
 				<div class='textfield'>
-					<?=form_label('user_name', 'user_name')?>
-					<?=form_input('user_name');?>
+					<?=form_label('Username', 'create_username')?>
+					<?=form_input('create_username');?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('password', 'user_pass')?>
-					<?=form_password('user_pass')?>
+					<?=form_label('Password', 'create_password')?>
+					<?=form_password('create_password')?>
 				</div>
 				<div class='buttons'>
-					<?=form_submit('add', 'Add')?>
+					<?=form_submit('create', 'Create')?>
+				</div>
+			<?=form_close();?>
+		</div>
+	</div>
+	<div id='login'>
+		<h1>Login</h1>
+		<div class='form_container'>	
+			<?=form_open('users/login')?>
+				<?=form_fieldset('User login form')?>
+				<div class='textfield'>
+					<?=form_label('Username', 'login_username')?>
+					<?=form_input('login_username');?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('Password', 'login_password')?>
+					<?=form_password('login_password')?>
+				</div>
+				<div class='buttons'>
+					<?=form_submit('login', 'Login')?>
 				</div>
 			<?=form_close();?>
 		</div>
@@ -40,6 +59,16 @@
 <script>
 	$(document).ready(function() {
 		get('users');
+<?php 
+	if(!isset($action) or $action != "adding") {
+		echo "$('#adding').hide();";
+	}
+?>
+<?php 
+	if(!isset($action) or $action != "login") {
+		echo "$('#login').hide();";
+	}
+?>
 	});
 	function get(s)
 	{
