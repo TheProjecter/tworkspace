@@ -10,23 +10,31 @@
 <body>
 
 	<a href="<?=site_url('install')?>">install</a>
+<?php
+	if($this->session->userdata('logged_in')) {
+		echo '<a href="' . site_url('users/logout') . '">logout</a>';
+	} else {
+		echo '<a href="' . site_url('users/login') . '">login</a>';
+	}
+?>
 	<h1>Welcome to tworkspace!</h1>
 	<table>
-	<tr><td><a href="<?=site_url('projects/adding')?>">add project</a></td></tr>
-	<tr><td><a href="<?=site_url('users/adding')?>">add user</a></td></tr>
+	<tr><td><a href="<?=site_url('projects/add')?>">add project</a></td></tr>
+	<tr><td><a href="<?=site_url('users/add')?>">add user</a></td></tr>
 	<table>
 	<h1>Projects</h1>
 	<div id='projects'></div>
 	<h1>Users</h1>
 	<div id='users'></div> 
-	<h1>Issues</h1>
-	<div id='issues'>
+	<h1>todos</h1>
+	<div id='todos'>
 		<ul>
 		<li>sessions - simple login/logout mechanizm</li>	
 		<li>users with different privileges</li>	
 		<li>svn</li>	
 		<li>build system</li>	
 		<li>regression tests</li>	
+		<li>design</li>	
 		</ul>
 	</div>
 </body>

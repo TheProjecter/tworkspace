@@ -2,11 +2,9 @@
 
 class Projects extends CI_Controller 
 {
-	public function add()
+	private function adding($name, $description)
 	{
 		$this->load->database();
-		$name = $this->input->post('project_name');
-		$description = $this->input->post('project_desc');
 		$name = trim($name);
 		$data['message'] = '';
 		if(! empty($name)) {
@@ -31,10 +29,16 @@ class Projects extends CI_Controller
 		$this->load->view('projects.php', $data);
 	}
 
-	public function adding()
+	public function add()
 	{
-		$data['action'] = 'adding';
-		$this->load->view('projects.php', $data);
+		$name = $this->input->post('project_name');
+		$description = $this->input->post('project_desc');
+		if($name != "") {
+			$this->adding($name, $description);
+		} else {
+			$data['action'] = 'adding';
+			$this->load->view('projects.php', $data);
+		}
 	}
 
 	public function remove()
