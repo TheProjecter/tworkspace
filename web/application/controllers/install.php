@@ -41,9 +41,33 @@ class Install extends CI_Controller
 				'type' => 'varchar',
 				'constraint' => '255',
 			),
+			'user_name' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '60'
+			),
 			'user_pass' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '60',
+			),
+			'user_project' => array(
+				'type' => 'INT',
+				'constraint' => '5',
+				'unsigned' => 'TRUE',
+			),
+			'user_manager' => array(
+				'type' => 'INT',
+				'constraint' => '5',
+				'unsigned' => 'TRUE',
+			),
+			'user_privilege' => array(
+				'type' => 'INT',
+				'constraint' => '5',
+				'unsigned' => 'TRUE',
+			),
+			'user_photo' => array(
+				'type' => 'INT',
+				'constraint' => '5',
+				'unsigned' => 'TRUE',
 			),
 			'user_date' => array(
 				'type' => 'VARCHAR',

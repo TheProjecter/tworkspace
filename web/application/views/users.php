@@ -17,12 +17,56 @@
 			<?=form_open('users/create')?>
 				<?=form_fieldset('User adding form')?>
 				<div class='textfield'>
+					<?=form_label('Email', 'create_email')?>
+					<?=form_input('create_email');?>
+				</div>
+				<div class='textfield'>
 					<?=form_label('Username', 'create_username')?>
 					<?=form_input('create_username');?>
 				</div>
 				<div class='textfield'>
 					<?=form_label('Password', 'create_password')?>
 					<?=form_password('create_password')?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('Project', 'create_project')?>
+					<?php
+						$options = array(
+							'1'  => 'project 1',
+							'2'  => 'project 2',
+							'3'  => 'project 3',
+							'4'  => 'project 4',
+						);
+						echo form_dropdown('create_project', $options);
+					?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('Manager', 'create_manager')?>
+					<?php
+						$options = array(
+							'1'  => 'manager 1',
+							'2'  => 'manager 2',
+							'3'  => 'manager 3',
+							'4'  => 'manager 4',
+						);
+						echo form_dropdown('create_manager', $options);
+					?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('Privilege', 'create_privilege')?>
+					<?php
+						$options = array(
+							'1'  => 'privilege 1',
+							'2'  => 'privilege 2',
+							'3'  => 'privilege 3',
+							'4'  => 'privilege 4',
+						);
+						echo form_dropdown('create_privilege', $options);
+					?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('Photo', 'create_photo')?>
+					<?=form_upload('create_photo')?>
 				</div>
 				<div class='buttons'>
 					<?=form_submit('create', 'Create')?>
