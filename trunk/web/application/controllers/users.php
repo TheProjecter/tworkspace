@@ -11,47 +11,64 @@ class Users extends CI_Controller {
 		//Check incoming variables
 		$config = array(
 			array(
+				'field' => 'create_email',
+				'label' => 'Username',
+				'rules' => "required|valid_email"
+			),
+			array(
 				'field' => 'create_username',
 				'label' => 'Username',
-				'rules' => "required|min_length[4]|max_length[32]|alpha_dash"
+				'rules' => "required|min_length[4]|max_length[32]"
 			),
 			array(
 				'field' => 'create_password',
 				'label' => 'Password',
-				'rules' => "required|min_length[4]|max_length[32]|alpha_dash"
+				'rules' => "required|min_length[4]|max_length[12]"
+			),
+			array(
+				'field' => 'create_project',
+				'label' => 'Project',
+				'rules' => "required|is_natural",
+			),
+			array(
+				'field' => 'create_manager',
+				'label' => 'Manager',
+				'rules' => "required|is_natural"
+			),
+			array(
+				'field' => 'create_privilege',
+				'label' => 'Privilege',
+				'rules' => "required|is_natural"
+			),
+			array(
+				'field' => 'create_photo',
+				'label' => 'Photo',
+				'rules' => "required|min_length[1]|max_length[50]"
 			),
 		);
 
 		$this->form_validation->set_rules($config);
 
 		if ($this->form_validation->run() == false) {
-			/*
-			//If you are using OBSession you can uncomment these lines
-			$flashdata = array('error' => true, 'error_text' => $this->form_validation->error_string);
-			$this->session->set_flashdata($flashdata); 
-			$this->session->set_flashdata($_POST);
-			*/
 			/*redirect('/users/login');*/
 			$data['action'] = 'adding';
 			$this->load->view('users.php', $data);
 		} else {
 			//Create account
-			if($this->simpleloginsecure->create($this->input->post('create_username'), $this->input->post('create_password'))) {
-				/*
-				//If you are using OBSession you can uncomment these lines
-				$flashdata = array('success' => true, 'success_text' => 'Account Creation Successful!');
-				$this->session->set_flashdata($flashdata);
-				*/
+
+			if($this->simpleloginsecure->create($this->input->post('create_email'), 
+								$this->input->post('create_username'),
+								$this->input->post('create_password'),
+								$this->input->post('create_project'),
+								$this->input->post('create_manager'),
+								$this->input->post('create_privilege'),
+								$this->input->post('create_photo')
+							)) 
+			{
 				redirect('');	
 			} else {
-				/*
-				//If you are using OBSession you can uncomment these lines
-				$flashdata = array('error' => true, 'error_text' => 'There was a problem creating the account.');
-				$this->session->set_flashdata($flashdata); 
-				$this->session->set_flashdata($_POST);
-				*/
 				redirect('/users/create');			
-			}			
+			}
 		}
 	}
 
@@ -64,21 +81,29 @@ class Users extends CI_Controller {
 
 	public function get()
 	{
+		$this->load->helper('date');
 		$this->load->database();
-		$this->db->select('user_id,user_email,user_pass,user_date,user_modified,user_last_login', FALSE);
+		$this->db->select('user_id,user_email,user_name,user_project,user_manager,user_privilege,user_photo,user_date,user_modified,user_last_login', FALSE);
 		$this->db->from('tworkspace.users');
 		$query = $this->db->get();
+		echo "<table>";
 		foreach ($query->result() as $row) {
-			echo "<table><tr><td>".$row->user_id."</td>".
+			echo "<tr><td>".$row->user_id."</td>".
 				"<td>".$row->user_email."</td>".
+				"<td>".$row->user_name."</td>".
+				"<td>".$row->user_project."</td>".
+				"<td>".$row->user_manager."</td>".
+				"<td>".$row->user_privilege."</td>".
+				"<td>".$row->user_photo."</td>".
 				"<td>".$row->user_date."</td>".
 				"<td>".$row->user_modified."</td>".
 				"<td>".$row->user_last_login."</td>".
 				"<td><input type='button' value='remove' ".
 				"onclick='remove(".$row->user_id.',"users")\'>'.
 				"</input></td>".
-				"</tr></table>";
+				"</tr>";
 		}
+		echo "</table>";
 	}
 
 

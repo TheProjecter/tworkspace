@@ -19,8 +19,8 @@
 ?>
 	<h1>Welcome to tworkspace!</h1>
 	<table>
-	<tr><td><a href="<?=site_url('projects/add')?>">add project</a></td></tr>
-	<tr><td><a href="<?=site_url('users/add')?>">add user</a></td></tr>
+	<tr><td><a href="<?=site_url('projects/create')?>">create project</a></td></tr>
+	<tr><td><a href="<?=site_url('users/create')?>">create user</a></td></tr>
 	<table>
 	<h1>Projects</h1>
 	<div id='projects'></div>

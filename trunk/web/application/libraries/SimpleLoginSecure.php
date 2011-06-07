@@ -46,7 +46,14 @@ class SimpleLoginSecure
 	 * @param	bool
 	 * @return	bool
 	 */
-	function create($user_email = '', $user_pass = '', $auto_login = true) 
+	function create($user_email,
+		$user_name,
+		$user_pass,
+		$user_project,
+		$user_manager,
+		$user_privilege,
+		$user_photo,
+		$auto_login = true) 
 	{
 		$this->CI =& get_instance();
 		
@@ -71,9 +78,14 @@ class SimpleLoginSecure
 		//Insert account into the database
 		$data = array(
 					'user_email' => $user_email,
+					'user_name' => $user_name, 
 					'user_pass' => $user_pass_hashed,
-					'user_date' => date('c'),
-					'user_modified' => date('c'),
+					'user_project' => $user_project,
+					'user_manager' => $user_manager,
+					'user_privilege' => $user_privilege,
+					'user_photo' => $user_photo,
+					'user_date' => date('r'),
+					'user_modified' => date('r'),
 				);
 
 		$this->CI->db->set($data); 
