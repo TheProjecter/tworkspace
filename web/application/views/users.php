@@ -11,6 +11,7 @@
 		echo '</div>';
 	}
 	?>
+	<a href="<?=site_url('privilege/create')?>">create_privilege</a>
 	<div id='create'>
 		<h1>create</h1>
 		<div class='form_container'>	
