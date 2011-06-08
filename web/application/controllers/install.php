@@ -134,12 +134,12 @@ class Install extends CI_Controller
 
 	public function index()
 	{
-		$this->load->view('install.php');
 		$this->load->dbforge();
 		$this->load->dbutil();
 		$this->create_database();
 		$this->load->database();
 		$this->create_tables();
+		$this->load->view('install.php');
 	}
 
 	public function __construct()

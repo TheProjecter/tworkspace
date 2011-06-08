@@ -23,7 +23,7 @@ class Users extends CI_Controller {
 			array(
 				'field' => 'create_password',
 				'label' => 'Password',
-				'rules' => "required|min_length[4]|max_length[12]"
+				'rules' => "required|min_length[4]|max_length[32]"
 			),
 			array(
 				'field' => 'create_project',
@@ -51,11 +51,10 @@ class Users extends CI_Controller {
 
 		if ($this->form_validation->run() == false) {
 			/*redirect('/users/login');*/
-			$data['action'] = 'adding';
+			$data['action'] = 'create';
 			$this->load->view('users.php', $data);
 		} else {
 			//Create account
-
 			if($this->simpleloginsecure->create($this->input->post('create_email'), 
 								$this->input->post('create_username'),
 								$this->input->post('create_password'),
@@ -116,14 +115,14 @@ class Users extends CI_Controller {
 		//Check incoming variables
 		$config = array(
 			array(
-				'field' => 'login_username',
+				'field' => 'login_email',
 				'label' => 'Username',
-				'rules' => "required|min_length[4]|max_length[32]|alpha_dash"
+				'rules' => "required|valid_email"
 			),
 			array(
 				'field' => 'login_password',
 				'label' => 'Password',
-				'rules' => "required|min_length[4]|max_length[32]|alpha_dash"
+				'rules' => "required|min_length[4]|max_length[32]"
 			),
 		);
 
@@ -141,7 +140,7 @@ class Users extends CI_Controller {
 			$this->load->view('users.php', $data);
 		} else {
 			//Create account
-			if($this->simpleloginsecure->login($this->input->post('login_username'), $this->input->post('login_password'))) {
+			if($this->simpleloginsecure->login($this->input->post('login_email'), $this->input->post('login_password'))) {
 				/*
 				//If you are using OBSession you can uncomment these lines
 				$flashdata = array('success' => true, 'success_text' => 'Login Successful!');

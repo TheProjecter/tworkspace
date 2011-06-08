@@ -11,11 +11,11 @@
 		echo '</div>';
 	}
 	?>
-	<div id='adding'>
+	<div id='create'>
 		<h1>Adding</h1>
 		<div class='form_container'>	
-			<?=form_open('projects/add')?>
-				<?=form_fieldset('Project adding form')?>
+			<?=form_open('projects/create')?>
+				<?=form_fieldset('Project creation form')?>
 				<div class='textfield'>
 					<?=form_label('project_name', 'project_name')?>
 					<?=form_input('project_name');?>
@@ -25,13 +25,14 @@
 					<?=form_textarea('project_desc')?>
 				</div>
 				<div class='buttons'>
-					<?=form_submit('add', 'Add')?>
+					<?=form_submit('create', 'Create')?>
 				</div>
 			<?=form_close();?>
 		</div>
 	</div>
 	<h1>Projects</h1>
 	<div id='projects'></div>
+	<a href="<?=site_url('')?>">back</a>
 </body>
 </html>
 
@@ -50,8 +51,8 @@
 	}
 	$(document).ready(function() {
 		<?php
-		if (! isset($action) or $action != "adding") {
-			echo "$('#adding').hide();";
+		if (! isset($action) or $action != "create") {
+			echo "$('#create').hide();";
 		}
 		?>
 		get('projects');
