@@ -84,8 +84,8 @@ class SimpleLoginSecure
 					'user_manager' => $user_manager,
 					'user_privilege' => $user_privilege,
 					'user_photo' => $user_photo,
-					'user_date' => date('r'),
-					'user_modified' => date('r'),
+					'user_date' => date('o-m-d H:i:s'),
+					'user_modified' => date('o-m-d H:i:s'),
 				);
 
 		$this->CI->db->set($data); 
