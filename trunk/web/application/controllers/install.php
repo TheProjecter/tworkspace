@@ -2,6 +2,35 @@
 
 class Install extends CI_Controller 
 {
+	private function create_privileges_table() 
+	{
+		echo "Creating privileges tabel ... ";
+		$fields = array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 5,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+				),
+                'name' => array(
+					'type' => 'VARCHAR',
+					'constraint' => '100',
+				),
+                'description' => array(
+					'type' => 'TEXT',
+					'null' => TRUE,
+				),
+                'privilege' => array(
+					'type' => 'VARCHAR',
+					'constraint' => '100',
+				),
+		);
+		$this->dbforge->add_key('id', TRUE);
+		$this->dbforge->add_field($fields);
+		$this->dbforge->create_table('tworkspace.privilege', TRUE);
+		echo "<font color=green>done</font><br>";
+	}
+
 	private function create_projects_table() 
 	{
 		echo "Creating projects tabel ... ";
@@ -120,6 +149,7 @@ class Install extends CI_Controller
 
 	private function create_tables()
 	{
+		$this->create_privileges_table();
 		$this->create_projects_table();	
 		$this->create_users_table();	
 		$this->create_actions_table();	
