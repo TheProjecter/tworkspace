@@ -11,11 +11,11 @@
 		echo '</div>';
 	}
 	?>
-	<div id='adding'>
-		<h1>Adding</h1>
+	<div id='create'>
+		<h1>create</h1>
 		<div class='form_container'>	
 			<?=form_open('users/create')?>
-				<?=form_fieldset('User adding form')?>
+				<?=form_fieldset('User createion form')?>
 				<div class='textfield'>
 					<?=form_label('Email', 'create_email')?>
 					<?=form_input('create_email');?>
@@ -80,8 +80,8 @@
 			<?=form_open('users/login')?>
 				<?=form_fieldset('User login form')?>
 				<div class='textfield'>
-					<?=form_label('Username', 'login_username')?>
-					<?=form_input('login_username');?>
+					<?=form_label('Email', 'login_email')?>
+					<?=form_input('login_email');?>
 				</div>
 				<div class='textfield'>
 					<?=form_label('Password', 'login_password')?>
@@ -95,6 +95,7 @@
 	</div>
 	<h1>Users</h1>
 	<div id='users'></div>
+	<a href="<?=site_url('')?>">back</a>
 </body>
 </html>
 
@@ -104,8 +105,8 @@
 	$(document).ready(function() {
 		get('users');
 <?php 
-	if(!isset($action) or $action != "adding") {
-		echo "$('#adding').hide();";
+	if(!isset($action) or $action != "create") {
+		echo "$('#create').hide();";
 	}
 ?>
 <?php 

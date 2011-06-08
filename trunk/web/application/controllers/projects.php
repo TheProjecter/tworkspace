@@ -2,7 +2,7 @@
 
 class Projects extends CI_Controller 
 {
-	private function adding($name, $description)
+	private function creating($name, $description)
 	{
 		$this->load->database();
 		$name = trim($name);
@@ -13,7 +13,7 @@ class Projects extends CI_Controller
 			$this->db->where('name', $name);
 			$result = $this->db->get();
 			if (! $result->num_rows()) {
-				$data['message'] = "<b>added</b><br>"
+				$data['message'] = "<b>creation</b><br>"
 					."name: $name<BR>description: $description<BR>";
 				$d = array(
 						'name' => $name,
@@ -29,14 +29,14 @@ class Projects extends CI_Controller
 		$this->load->view('projects.php', $data);
 	}
 
-	public function add()
+	public function create()
 	{
 		$name = $this->input->post('project_name');
 		$description = $this->input->post('project_desc');
 		if($name != "") {
-			$this->adding($name, $description);
+			$this->creating($name, $description);
 		} else {
-			$data['action'] = 'adding';
+			$data['action'] = 'create';
 			$this->load->view('projects.php', $data);
 		}
 	}
