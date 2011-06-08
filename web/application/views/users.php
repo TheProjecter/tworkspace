@@ -31,39 +31,15 @@
 				</div>
 				<div class='textfield'>
 					<?=form_label('Project', 'create_project')?>
-					<?php
-						$options = array(
-							'1'  => 'project 1',
-							'2'  => 'project 2',
-							'3'  => 'project 3',
-							'4'  => 'project 4',
-						);
-						echo form_dropdown('create_project', $options);
-					?>
+					<?=form_dropdown('create_project', $projects)?>
 				</div>
 				<div class='textfield'>
 					<?=form_label('Manager', 'create_manager')?>
-					<?php
-						$options = array(
-							'1'  => 'manager 1',
-							'2'  => 'manager 2',
-							'3'  => 'manager 3',
-							'4'  => 'manager 4',
-						);
-						echo form_dropdown('create_manager', $options);
-					?>
+					<?=form_dropdown('create_manager', $managers)?>
 				</div>
 				<div class='textfield'>
 					<?=form_label('Privilege', 'create_privilege')?>
-					<?php
-						$options = array(
-							'1'  => 'privilege 1',
-							'2'  => 'privilege 2',
-							'3'  => 'privilege 3',
-							'4'  => 'privilege 4',
-						);
-						echo form_dropdown('create_privilege', $options);
-					?>
+					<?=form_dropdown('create_privilege', $privilege)?>
 				</div>
 				<div class='textfield'>
 					<?=form_label('Photo', 'create_photo')?>

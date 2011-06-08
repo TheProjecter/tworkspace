@@ -36,19 +36,22 @@ class tdatabase_model extends CI_Model {
 	{
 	}
 
-	function get_entry($entry="", $value="")
+	function get_entry($table="", $entry="", $value="")
 	{
 		$this->CI =& get_instance();
 
-		if(!empty($entry)) {
+		if (empty($table)) {
+			$table = $this->CI->table;
+		}
+		if (! empty($entry)) {
 			$this->CI->db->where($entry, $value); 
-			$query = $this->CI->db->get_where($this->CI->table);
+			$query = $this->CI->db->get_where($table);
 			
 			if ($query->num_rows() == 0) {
 				return false;
 			}
 		} else {
-			$query = $this->CI->db->get($this->CI->table);
+			$query = $this->CI->db->get($table);
 		}
 		$result_array[0] = $query->first_row('array');
 		for($i = 1; $i < $query->num_rows(); $i++) {

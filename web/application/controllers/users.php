@@ -1,6 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Users extends CI_Controller {
+class Users extends CI_Controller 
+{
+	var $table = 'users';
 
 	function create()
 	{
@@ -52,23 +54,65 @@ class Users extends CI_Controller {
 		if ($this->form_validation->run() == false) {
 			/*redirect('/users/login');*/
 			$data['action'] = 'create';
+			$data['privilege'] = $this->get_privileges();
+			$data['managers'] = $this->get_managers();
+			$data['projects'] = $this->get_projects();
 			$this->load->view('users.php', $data);
 		} else {
 			//Create account
-			if($this->simpleloginsecure->create($this->input->post('create_email'), 
+			if ($this->simpleloginsecure->create($this->input->post('create_email'), 
 								$this->input->post('create_username'),
 								$this->input->post('create_password'),
 								$this->input->post('create_project'),
 								$this->input->post('create_manager'),
 								$this->input->post('create_privilege'),
 								$this->input->post('create_photo')
-							)) 
+							) ) 
 			{
 				redirect('');	
 			} else {
 				redirect('/users/create');			
 			}
 		}
+	}
+
+	private function get_projects()
+	{
+		$this->load->database();
+		$this->load->model('tdatabase_model');
+		$result = array();
+		$query = $this->tdatabase_model->get_entry('projects');
+		foreach($query as $row) {
+			if(empty($row)) continue;
+			$result[$row['id']] = $row['name'];
+		}
+		return $result;
+	}
+
+	private function get_privileges()
+	{
+		$this->load->database();
+		$this->load->model('tdatabase_model');
+		$result = array();
+		$query = $this->tdatabase_model->get_entry('privilege');
+		foreach($query as $row) {
+			if(empty($row)) continue;
+			$result[$row['id']] = $row['name'];
+		}
+		return $result;
+	}
+
+	private function get_managers()
+	{
+		$this->load->database();
+		$this->load->model('tdatabase_model');
+		$result = array();
+		$query = $this->tdatabase_model->get_entry();
+		foreach($query as $row) {
+			if(empty($row)) continue;
+			$result[$row['user_id']] = $row['user_name'] . "  " . $row['user_email'];
+		}
+		return $result;
 	}
 
 	public function remove()
@@ -80,29 +124,26 @@ class Users extends CI_Controller {
 
 	public function get()
 	{
-		$this->load->helper('date');
 		$this->load->database();
-		$this->db->select('user_id,user_email,user_name,user_project,user_manager,user_privilege,user_photo,user_date,user_modified,user_last_login', FALSE);
-		$this->db->from('tworkspace.users');
-		$query = $this->db->get();
-		echo "<table>";
-		foreach ($query->result() as $row) {
-			echo "<tr><td>".$row->user_id."</td>".
-				"<td>".$row->user_email."</td>".
-				"<td>".$row->user_name."</td>".
-				"<td>".$row->user_project."</td>".
-				"<td>".$row->user_manager."</td>".
-				"<td>".$row->user_privilege."</td>".
-				"<td>".$row->user_photo."</td>".
-				"<td>".$row->user_date."</td>".
-				"<td>".$row->user_modified."</td>".
-				"<td>".$row->user_last_login."</td>".
-				"<td><input type='button' value='remove' ".
-				"onclick='remove(".$row->user_id.',"users")\'>'.
-				"</input></td>".
-				"</tr>";
+		$this->load->model('tdatabase_model');
+		$result = $this->tdatabase_model->get_entry();
+		$this->load->library('table');
+		$table_heading = array();
+		$table_rows = array();
+		foreach ($result as $user) {
+			$arow = array();
+			foreach ($user as $prop=>$val) {
+				if($prop == "user_pass") continue;
+				$table_heading[$prop] = 1;
+				array_push($arow, $val);
+			}
+			array_push($table_rows, $arow);
 		}
-		echo "</table>";
+		$this->table->set_heading(array_keys($table_heading));
+		foreach($table_rows as $arow) {
+			$this->table->add_row($arow);
+		}
+		echo $this->table->generate();
 	}
 
 
@@ -129,31 +170,14 @@ class Users extends CI_Controller {
 		$this->form_validation->set_rules($config);
 				
 		if ($this->form_validation->run() == false) {
-			/*
-			//If you are using OBSession you can uncomment these lines
-			$flashdata = array('error' => true, 'error_text' => $this->form_validation->error_string);
-			$this->session->set_flashdata($flashdata); 
-			$this->session->set_flashdata($_POST);
-			*/
-			//redirect('/users/login/');			
 			$data['action'] = 'login';
 			$this->load->view('users.php', $data);
 		} else {
-			//Create account
-			if($this->simpleloginsecure->login($this->input->post('login_email'), $this->input->post('login_password'))) {
-				/*
-				//If you are using OBSession you can uncomment these lines
-				$flashdata = array('success' => true, 'success_text' => 'Login Successful!');
-				$this->session->set_flashdata($flashdata);
-				*/
+			if($this->simpleloginsecure->login($this->input->post('login_email'), 
+			$this->input->post('login_password'))) 
+			{
 				redirect('');	
 			} else {
-				/*
-				//If you are using OBSession you can uncomment these lines
-				$flashdata = array('error' => true, 'error_text' => 'There was a problem logging into the account.');
-				$this->session->set_flashdata($flashdata); 
-				$this->session->set_flashdata($_POST);
-				*/
 				redirect('/users/login');			
 			}			
 		}
@@ -181,48 +205,6 @@ class Users extends CI_Controller {
 		echo '</div>';
 		echo '<hr />';
 		//EOF Status Info
-
-		//BOF User table
-		if($this->session->userdata('logged_in')) {
-			//Grab user data from database
-			$query = $this->db->select('user_id, user_email');
-			$query = $this->db->get($user_table);
-			$user_array = $query->result_array();
-			
-			if(count($user_array) > 0) {
-				echo '<div id="user_table">';
-					echo '<h3>User Table</h3>';
-					echo '<table>';
-						echo '<tr>';
-							echo '<th>';
-								echo 'ID';
-							echo '</th>';
-							echo '<th>';
-								echo 'Username';
-							echo '</th>';
-							echo '<th>';
-								echo 'Delete';
-							echo '</th>';
-						echo '</tr>';
-						foreach($user_array as $ua) {
-							echo '<tr>';
-								echo '<td>';
-									echo $ua['user_id'];
-								echo '</td>';
-								echo '<td>';
-									echo $ua['user_email'];
-								echo '</td>';
-								echo '<td>';
-									echo '<a href="' . site_url('/example/delete/' . $ua['user_id']) . '" onclick="return confirm(\'Are you sure you want to delete this user?\')">Delete</a>';
-								echo '</td>';
-							echo '</tr>';
-						}
-					echo '</table>';
-				echo '</div>';
-				echo '<hr />';
-			}
-		}
-		//EOF User table
 	}
 
 	function logout()
@@ -246,4 +228,4 @@ class Users extends CI_Controller {
 }
 
 /* End of file welcome.php */
-/* Location: ./application/controllers/welcome.php */
+/* Location: ./application/controllers/users.php */
