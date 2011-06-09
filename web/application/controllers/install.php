@@ -10,7 +10,8 @@ class Install extends CI_Controller
 				'type' => 'INT',
 				'constraint' => 5,
 				'unsigned' => TRUE,
-				'auto_increment' => TRUE
+				'auto_increment' => TRUE,
+				'null' => FALSE,
 				),
                 'name' => array(
 					'type' => 'VARCHAR',
@@ -39,7 +40,8 @@ class Install extends CI_Controller
 				'type' => 'INT',
 				'constraint' => 5,
 				'unsigned' => TRUE,
-				'auto_increment' => TRUE
+				'auto_increment' => TRUE,
+				'null' => FALSE,
 				),
                 'name' => array(
 					'type' => 'VARCHAR',
@@ -60,58 +62,58 @@ class Install extends CI_Controller
 	{
 		echo "Creating users table ... ";
 		$fields = array(
-			'user_id' => array(
+			'id' => array(
 				'type' => 'INT',
 				'constraint' => 5,
 				'unsigned' => TRUE,
-				'auto_increment' => TRUE
+				'auto_increment' => TRUE,
+				'null' => FALSE,
 			),
-            		'user_email' => array(
+			'email' => array(
 				'type' => 'varchar',
 				'constraint' => '255',
 			),
-			'user_name' => array(
+			'name' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '60'
 			),
-			'user_pass' => array(
+			'pass' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '60',
 			),
-			'user_project' => array(
+			'project' => array(
 				'type' => 'INT',
 				'constraint' => '5',
 				'unsigned' => 'TRUE',
 			),
-			'user_manager' => array(
+			'manager' => array(
 				'type' => 'INT',
 				'constraint' => '5',
 				'unsigned' => 'TRUE',
 			),
-			'user_privilege' => array(
+			'privilege' => array(
 				'type' => 'INT',
 				'constraint' => '5',
 				'unsigned' => 'TRUE',
 			),
-			'user_photo' => array(
-				'type' => 'INT',
-				'constraint' => '5',
-				'unsigned' => 'TRUE',
-			),
-			'user_date' => array(
+			'photo' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '60',
 			),
-			'user_modified' => array(
+			'date' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '60',
 			),
-			'user_last_login' => array(
+			'modified' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '60',
+			),
+			'last_login' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '60',
 			),
 		);
-		$this->dbforge->add_key('user_id', TRUE);
+		$this->dbforge->add_key('id', TRUE);
 		$this->dbforge->add_field($fields);
 		$this->dbforge->create_table('tworkspace.users', TRUE);
 		echo "<font color=green>done</font><br>";
@@ -125,7 +127,8 @@ class Install extends CI_Controller
 				'type' => 'INT',
 				'constraint' => 5,
 				'unsigned' => TRUE,
-				'auto_increment' => TRUE
+				'auto_increment' => TRUE,
+				'null' => FALSE,
 			),
 			'uid' => array(
 				'type' => 'INT',

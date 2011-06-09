@@ -4,6 +4,7 @@
 </head>
 
 <body>
+	<a href="<?=site_url('')?>">home</a>
 	<?php 
 	if (isset($message)) {
 		echo '<div id="message">';

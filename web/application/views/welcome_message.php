@@ -9,7 +9,9 @@
 </head>
 <body>
 
-	<a href="<?=site_url('install')?>">install</a>
+	<table>
+	<tr> <td> <a href="<?=site_url('install')?>">install </a> </td> </tr>
+	<tr> <td>  
 <?php
 	if($this->session->userdata('logged_in')) {
 		echo '<a href="' . site_url('users/logout') . '">logout</a>';
@@ -17,11 +19,13 @@
 		echo '<a href="' . site_url('users/login') . '">login</a>';
 	}
 ?>
+	</td> </tr>
+	<tr> <td> <a href="<?=site_url('')?>">home</a> </td> </tr>
+	<tr> <td> <a href="<?=site_url('projects/create')?>">create project</a></td></tr>
+	<tr> <td> <a href="<?=site_url('users/create')?>">create_user</a></td></tr>
+	</table>
+
 	<h1>Welcome to tworkspace!</h1>
-	<table>
-	<tr><td><a href="<?=site_url('projects/create')?>">create project</a></td></tr>
-	<tr><td><a href="<?=site_url('users/create')?>">create user</a></td></tr>
-	<table>
 	<h1>Projects</h1>
 	<div id='projects'></div>
 	<h1>Users</h1>

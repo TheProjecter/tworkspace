@@ -2,45 +2,44 @@
 
 class Projects extends CI_Controller 
 {
-	private function creating($name, $description)
-	{
-		$this->load->database();
-		$name = trim($name);
-		$data['message'] = '';
-		if(! empty($name)) {
-			$this->db->select('name', FALSE);
-			$this->db->from('tworkspace.projects');
-			$this->db->where('name', $name);
-			$result = $this->db->get();
-			if (! $result->num_rows()) {
-				$data['message'] = "<b>creation</b><br>"
-					."name: $name<BR>description: $description<BR>";
-				$d = array(
-						'name' => $name,
-						'description' => $description,
-						);
-				$this->db->insert('tworkspace.projects', $d);
-			} else {
-				$data['message'] = "Another project with the name ".
-					"<i>$name</i>".
-					" already exists in the database.";
-			}
-		}
-		$this->load->view('projects.php', $data);
-	}
+	var $table = 'projects';
 
-	public function create()
+	function create()
 	{
-		$name = $this->input->post('project_name');
-		$description = $this->input->post('project_desc');
-		if($name != "") {
-			$this->creating($name, $description);
-		} else {
+		//Load
+		$this->load->helper('url');
+		$this->load->library('form_validation');
+		
+		//Check incoming variables
+		$config = array(
+			array(
+				'field' => 'project_name',
+				'label' => 'name',
+				'rules' => "required|min_length[4]|max_length[50]|alpha_numeric"
+			),
+			array(
+				'field' => 'project_desc',
+				'label' => 'description',
+				'rules' => "required|max_length[300]"
+			),
+		);
+
+		$this->form_validation->set_rules($config);
+
+		if ($this->form_validation->run() == false) {
 			$data['action'] = 'create';
 			$this->load->view('projects.php', $data);
+		} else {
+			$this->load->database();
+			$this->load->model('tdatabase_model');
+			$data = array(
+					'name' => $this->input->post('project_name'),
+					'description' => $this->input->post('project_desc'),
+					);
+			$this->tdatabase_model->insert_entry($data, 'name');
+			redirect('projects');	
 		}
 	}
-
 	public function remove()
 	{
 		$id = $this->input->get('id');
@@ -51,18 +50,14 @@ class Projects extends CI_Controller
 	public function get()
 	{
 		$this->load->database();
-		$this->db->select('id,name,description', FALSE);
-		$this->db->from('tworkspace.projects');
-		$query = $this->db->get();
-		foreach ($query->result() as $row) {
-			echo "<table><tr><td>".$row->id."</td>".
-				"<td>".$row->name."</td>".
-				"<td>".$row->description."</td>".
-				"<td><input type='button' value='remove' ".
-				"onclick='remove(".$row->id.',"projects")\'>'.
-				"</input></td>".
-				"</tr></table>";
+		$this->load->model('tdatabase_model');
+		$result = $this->tdatabase_model->get_entry();
+		$this->load->library('table');
+		$this->table->set_heading(array_keys($result[0]));
+		foreach($result as $key=>$value) {
+			$this->table->add_row(array_values($value));
 		}
+		echo $this->table->generate();
 	}
 
 	public function index()

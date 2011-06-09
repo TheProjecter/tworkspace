@@ -36,7 +36,7 @@ class tdatabase_model extends CI_Model {
 	{
 	}
 
-	function get_entry($table="", $entry="", $value="")
+	function get_entry_where($entry="", $value="", $table="")
 	{
 		$this->CI =& get_instance();
 
@@ -53,6 +53,22 @@ class tdatabase_model extends CI_Model {
 		} else {
 			$query = $this->CI->db->get($table);
 		}
+		$result_array[0] = $query->first_row('array');
+		for($i = 1; $i < $query->num_rows(); $i++) {
+			$result_array[$i] = $query->next_row('array');
+		}
+		$query->free_result();
+		return $result_array;
+	}
+
+	function get_entry($table="")
+	{
+		$this->CI =& get_instance();
+
+		if (empty($table)) {
+			$table = $this->CI->table;
+		}
+		$query = $this->CI->db->get($table);
 		$result_array[0] = $query->first_row('array');
 		for($i = 1; $i < $query->num_rows(); $i++) {
 			$result_array[$i] = $query->next_row('array');

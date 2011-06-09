@@ -4,6 +4,7 @@
 </head>
 
 <body>
+	<a href="<?=site_url('')?>">home</a>
 	<?php 
 	if (isset($message)) {
 		echo '<div id="message">';
@@ -17,7 +18,7 @@
 			<?=form_open('projects/create')?>
 				<?=form_fieldset('Project creation form')?>
 				<div class='textfield'>
-					<?=form_label('project_name', 'project_name')?>
+					<?=form_label('name', 'project_name')?>
 					<?=form_input('project_name');?>
 				</div>
 				<div class='textfield'>
@@ -32,7 +33,6 @@
 	</div>
 	<h1>Projects</h1>
 	<div id='projects'></div>
-	<a href="<?=site_url('')?>">back</a>
 </body>
 </html>
 
