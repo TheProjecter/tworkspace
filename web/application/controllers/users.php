@@ -211,7 +211,10 @@ class Users extends CI_Controller
 		$this->load->database();
 		$this->load->model('tdatabase_model');
 		$result = $this->tdatabase_model->get_entry_where("name", $name);
-		print_r($result);
+		$data['action'] = 'show';
+		$data['user_name'] = $result[0]['name'];
+		$data['user_photo'] = $result[0]['photo'];
+		$this->load->view('users.php', $data);
 	}
 
 	public function index()

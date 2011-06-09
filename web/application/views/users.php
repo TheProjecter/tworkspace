@@ -75,7 +75,13 @@
 			<?=form_close();?>
 		</div>
 	</div>
-	<h1>Users</h1>
+
+	<div id="show">
+		<h1><?=$user_name?></h1>
+		<img src=<?=site_url("/uploads/$user_photo")?>/>
+	</div>
+
+	<h1>all users</h1>
 	<div id='users'></div>
 	<a href="<?=site_url('')?>">back</a>
 </body>
@@ -94,6 +100,11 @@
 <?php 
 	if(!isset($action) or $action != "login") {
 		echo "$('#login').hide();";
+	}
+?>
+<?php 
+	if(!isset($action) or $action != "show") {
+		echo "$('#show').hide();";
 	}
 ?>
 	});
