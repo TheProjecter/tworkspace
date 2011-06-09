@@ -4,6 +4,12 @@
 </head>
 
 <body>
+	
+	<table>
+	<tr><td><a href="<?=site_url('')?>">home</a></td></tr>
+	<tr><td><a href="<?=site_url('projects/create')?>">create project</a></td></tr>
+	<tr><td><a href="<?=site_url('privilege/create')?>">create_privilege</a></td></tr>
+	<table>
 	<?php 
 	if (isset($message)) {
 		echo '<div id="message">';
@@ -11,42 +17,41 @@
 		echo '</div>';
 	}
 	?>
-	<a href="<?=site_url('privilege/create')?>">create_privilege</a>
 	<div id='create'>
 		<h1>create</h1>
 		<div class='form_container'>	
-			<?=form_open('users/create')?>
-				<?=form_fieldset('User createion form')?>
+			<?=form_open_multipart('users/create')?>
+				<?=form_fieldset('user createion form')?>
 				<div class='textfield'>
-					<?=form_label('Email', 'create_email')?>
+					<?=form_label('email', 'create_email')?>
 					<?=form_input('create_email');?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Username', 'create_username')?>
+					<?=form_label('username', 'create_username')?>
 					<?=form_input('create_username');?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Password', 'create_password')?>
+					<?=form_label('password', 'create_password')?>
 					<?=form_password('create_password')?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Project', 'create_project')?>
+					<?=form_label('project', 'create_project')?>
 					<?=form_dropdown('create_project', $projects)?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Manager', 'create_manager')?>
+					<?=form_label('manager', 'create_manager')?>
 					<?=form_dropdown('create_manager', $managers)?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Privilege', 'create_privilege')?>
+					<?=form_label('privilege', 'create_privilege')?>
 					<?=form_dropdown('create_privilege', $privilege)?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Photo', 'create_photo')?>
+					<?=form_label('photo', 'create_photo')?>
 					<?=form_upload('create_photo')?>
 				</div>
 				<div class='buttons'>
-					<?=form_submit('create', 'Create')?>
+					<?=form_submit('create', 'create')?>
 				</div>
 			<?=form_close();?>
 		</div>

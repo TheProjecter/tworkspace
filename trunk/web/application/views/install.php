@@ -1,2 +1,2 @@
 
-<a href="<?=site_url('')?>">back</a>
+<a href="<?=site_url('')?>">home</a>
