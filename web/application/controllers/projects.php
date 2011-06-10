@@ -66,6 +66,7 @@ class Projects extends CI_Controller
 		$result = $this->tdatabase_model->get_entry();
 		$this->load->library('table');
 		foreach($result as $key=>$value) {
+			if(empty($value)) continue;
 			$p = "<a href='".site_url('/projects/name/'.$value['name'])."'>".$value['name']."</a>";
 			$this->table->add_row(array($p));
 		}

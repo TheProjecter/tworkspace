@@ -221,7 +221,7 @@ class Users extends CI_Controller
 															$data['user']['privilege'], 
 															'privilege');
 		$privilege = "<a href='".
-			site_url('/privilege/name/'.$privilege[0]['name']).
+			site_url('/privileges/name/'.$privilege[0]['name']).
 			"'>".$privilege[0]['name']."</a>";
 		$data['user']['privilege'] = $privilege;
 		$this->load->view('users_individual.php', $data);
