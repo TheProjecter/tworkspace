@@ -1,18 +1,26 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Privilege extends CI_Controller 
+class Privileges extends CI_Controller 
 {
 	var $table = 'privilege';
 
 	public function __construct()
 	{
 		parent::__construct();
+		$this->load->library('session');
 	}
 
 	public function index()
 	{
 		$this->load->helper(array('form'));
-		$this->load->view('privilege');
+		$this->load->view('privileges');
+	}
+
+	public function remove()
+	{
+		$this->load->database();
+		$id = $this->input->get('id');
+		$this->db->delete("tworkspace.".$this->table, array('id' => $id)); 
 	}
 
 	public function create()
@@ -20,18 +28,27 @@ class Privilege extends CI_Controller
 		$this->load->library('form_validation');
 
 		$options = $this->input->post('create_options');
-		$privilege = "000";
+		$privilege = "000000";
 		if(is_array($options)) {
 			foreach($options as $key => $value) {
 				switch ($key) {
-					case 'create_project': 
+					case 'watch_projects': 
 						$privilege[0] = '1';
 						break;
-					case 'create_user': 
+					case 'watch_users': 
 						$privilege[1] = '1';
 						break;
-					case 'create_privilege': 
+					case 'watch_privileges': 
 						$privilege[2] = '1';
+						break;
+					case 'create_project': 
+						$privilege[3] = '1';
+						break;
+					case 'create_user': 
+						$privilege[4] = '1';
+						break;
+					case 'create_privilege': 
+						$privilege[5] = '1';
 						break;
 				}
 			}
@@ -55,17 +72,17 @@ class Privilege extends CI_Controller
 
 		if ($this->form_validation->run() == false) {
 			$data['action'] = 'create';
-			$this->load->view('privilege.php', $data);
+			$this->load->view('privileges', $data);
 		} else {
 			$this->load->database();
 			$this->load->model('tdatabase_model');
 			$data = array(
 					'name' => $this->input->post('create_name'),
 					'description' => $this->input->post('create_description'),
-					'privilege' => $privilege 
+					'code' => $privilege 
 					);
 			$this->tdatabase_model->insert_entry($data, 'name');
-			redirect('privilege');	
+			redirect('privileges');	
 		}
 	}
 
@@ -75,11 +92,22 @@ class Privilege extends CI_Controller
 		$this->load->model('tdatabase_model');
 		$result = $this->tdatabase_model->get_entry();
 		$this->load->library('table');
-		$this->table->set_heading(array_keys($result[0]));
 		foreach($result as $key=>$value) {
-			$this->table->add_row(array_values($value));
+			if(empty($value)) continue;
+			$name = "<a href='".site_url('/privileges/name/'.$value['name'])."'>".$value['name']."</a>";
+			$rm = "<a href='javascript: void(0)' onClick=\"remove(".$value['id'].",'privileges');\">delete</a>";
+			$this->table->add_row(array($name, $rm));
 		}
 		echo $this->table->generate();
+	}
+
+	public function name($name)
+	{
+		$this->load->database();
+		$this->load->model('tdatabase_model');
+		$result = $this->tdatabase_model->get_entry_where("name", $name);
+		$data['privilege'] = $result[0];
+		$this->load->view('privilege_individual.php', $data);
 	}
 
 }

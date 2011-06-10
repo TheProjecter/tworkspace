@@ -148,23 +148,11 @@ class Users extends CI_Controller
 		$this->load->model('tdatabase_model');
 		$result = $this->tdatabase_model->get_entry();
 		$this->load->library('table');
-		$table_heading = array();
-		$table_rows = array();
 		foreach ($result as $user) {
-			$arow = array();
-			foreach ($user as $prop=>$val) {
-				if($prop == "pass") continue;
-				if($prop == "photo") {
-					$val = "<a href=".site_url("/uploads/$val").">$val</a>";
-				}
-				$table_heading[$prop] = 1;
-				array_push($arow, $val);
-			}
-			array_push($table_rows, $arow);
-		}
-		$this->table->set_heading(array_keys($table_heading));
-		foreach($table_rows as $arow) {
-			$this->table->add_row($arow);
+			if(empty($user)) continue;
+			$name = "<a href='".site_url('/users/name/'.$user['name'])."'>".$user['name']."</a>";
+			$rm = "<a href='#' onClick=\"remove(".$user['id'].",'users');\">delete</a>";
+			$this->table->add_row($name, $rm);
 		}
 		echo $this->table->generate();
 	}
@@ -212,29 +200,53 @@ class Users extends CI_Controller
 		$this->load->model('tdatabase_model');
 		$result = $this->tdatabase_model->get_entry_where("name", $name);
 		$data['action'] = 'show';
-		$data['user_name'] = $result[0]['name'];
-		$data['user_photo'] = $result[0]['photo'];
-		$this->load->view('users.php', $data);
+		$data['user'] = $result[0];
+
+		$project = $this->tdatabase_model->get_entry_where("id", 
+															$data['user']['project'], 
+															'projects');
+		$project = "<a href='".
+			site_url('/projects/name/'.$project[0]['name']).
+			"'>".$project[0]['name']."</a>";
+		$data['user']['project'] = $project;
+		$manager = $this->tdatabase_model->get_entry_where("id", 
+															$data['user']['manager'], 
+															'users');
+		$manager = "<a href='".
+			site_url('/users/name/'.$manager[0]['name']).
+			"'>".$manager[0]['name']."</a>";
+		$data['user']['manager'] = $manager;
+		
+		$privilege = $this->tdatabase_model->get_entry_where("id", 
+															$data['user']['privilege'], 
+															'privilege');
+		$privilege = "<a href='".
+			site_url('/privilege/name/'.$privilege[0]['name']).
+			"'>".$privilege[0]['name']."</a>";
+		$data['user']['privilege'] = $privilege;
+		$this->load->view('users_individual.php', $data);
 	}
 
 	public function index()
 	{
 		$this->load->helper(array('form'));
-		$this->load->view('users.php');
-
 		//Load the URL helper
 		$this->load->helper('url');
+		$data['privilege'] = array();
+		$data['managers'] = array();
+		$data['projects'] = array();
+		$this->load->view('users.php', $data);
 		
 		//BOF Status Info
-		echo '<div id="status">';
-			echo '<h3>User Status</h3>';
-			if($this->session->userdata('logged_in')) {
-				echo 'User logged in as ' . $this->session->userdata('email');
-			} else {
-				echo 'User not logged in';
-			}
-		echo '</div>';
-		echo '<hr />';
+		//echo '<div id="status">';
+		//	echo '<h3>User Status</h3>';
+		//	if($this->session->userdata('logged_in')) {
+		//		echo 'User logged in as ' . $this->session->userdata('email');
+		//	} else {
+		//		echo 'User not logged in';
+		//	}
+		//echo '</div>';
+		//echo '<hr />';
 		//EOF Status Info
 	}
 

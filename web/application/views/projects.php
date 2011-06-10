@@ -1,17 +1,5 @@
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="<?=site_url('css/basic.css')?>" />
-</head>
+<?php include_once './inc/header.php'; ?>
 
-<body>
-	<a href="<?=site_url('')?>">home</a>
-	<?php 
-	if (isset($message)) {
-		echo '<div id="message">';
-		echo $message;
-		echo '</div>';
-	}
-	?>
 	<div id='create'>
 		<h1>Adding</h1>
 		<div class='form_container'>	
@@ -31,41 +19,15 @@
 			<?=form_close();?>
 		</div>
 	</div>
-	<h1>Projects</h1>
-	<div id='projects'></div>
-</body>
-</html>
 
-<script type='text/javascript' src="<?=site_url('js/jquery-1.5.1.min.js')?>">
-</script>
+	<h1>projects</h1>
+	<a href='<?=site_url('/projects/create')?>'>create</a>
+	<div id='projects'></div>
+
+<?php include_once './inc/footer.php'; ?>
+
 <script>
-	function get(s)
-	{
-		$.ajax({
-		  url: "<?=site_url()?>"+s+'/get',
-		  data: "",
-		  success: function(data){
-			$('#'+s).html(data);
-		  }
-		});
-	}
 	$(document).ready(function() {
-		<?php
-		if (! isset($action) or $action != "create") {
-			echo "$('#create').hide();";
-		}
-		?>
 		get('projects');
-		get('users');
 	});
-	function remove(id,s) 
-	{
-		$.ajax({
-		  url: "<?=site_url()?>"+s+'/remove',
-		  data: 'id='+id,
-		  success: function(data){
-				get(s);
-		  }
-		});
-	}
 </script>
