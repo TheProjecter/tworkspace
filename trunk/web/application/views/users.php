@@ -1,22 +1,5 @@
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="<?=site_url('css/basic.css')?>" />
-</head>
+<?php include_once './inc/header.php'; ?>
 
-<body>
-	
-	<table>
-	<tr><td><a href="<?=site_url('')?>">home</a></td></tr>
-	<tr><td><a href="<?=site_url('projects/create')?>">create project</a></td></tr>
-	<tr><td><a href="<?=site_url('privilege/create')?>">create_privilege</a></td></tr>
-	<table>
-	<?php 
-	if (isset($message)) {
-		echo '<div id="message">';
-		echo $message;
-		echo '</div>';
-	}
-	?>
 	<div id='create'>
 		<h1>create</h1>
 		<div class='form_container'>	
@@ -76,56 +59,14 @@
 		</div>
 	</div>
 
-	<div id="show">
-		<h1><?=$user_name?></h1>
-		<img src=<?=site_url("/uploads/$user_photo")?>/>
-	</div>
-
-	<h1>all users</h1>
+	<h1>users</h1>
+	<a href='<?=site_url('/users/create')?>'>create</a>
 	<div id='users'></div>
-	<a href="<?=site_url('')?>">back</a>
-</body>
-</html>
 
-<script type='text/javascript' src="<?=site_url('js/jquery-1.5.1.min.js')?>">
-</script>
+<?php include_once './inc/footer.php'; ?>
+
 <script>
 	$(document).ready(function() {
 		get('users');
-<?php 
-	if(!isset($action) or $action != "create") {
-		echo "$('#create').hide();";
-	}
-?>
-<?php 
-	if(!isset($action) or $action != "login") {
-		echo "$('#login').hide();";
-	}
-?>
-<?php 
-	if(!isset($action) or $action != "show") {
-		echo "$('#show').hide();";
-	}
-?>
 	});
-	function get(s)
-	{
-		$.ajax({
-		  url: "<?=site_url()?>"+s+'/get',
-		  data: "",
-		  success: function(data){
-			$('#'+s).html(data);
-		  }
-		});
-	}
-	function remove(id,s) 
-	{
-		$.ajax({
-		  url: "<?=site_url()?>"+s+'/remove',
-		  data: 'id='+id,
-		  success: function(data){
-				get(s);
-		  }
-		});
-	}
 </script>

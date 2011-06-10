@@ -21,7 +21,7 @@ class Install extends CI_Controller
 					'type' => 'TEXT',
 					'null' => TRUE,
 				),
-                'privilege' => array(
+                'code' => array(
 					'type' => 'VARCHAR',
 					'constraint' => '100',
 				),

@@ -1,21 +1,9 @@
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="<?=site_url('css/basic.css')?>" />
-</head>
+<?php include_once './inc/header.php'; ?>
 
-<body>
-	<a href="<?=site_url('')?>">home</a>
-	<?php 
-	if (isset($message)) {
-		echo '<div id="message">';
-		echo $message;
-		echo '</div>';
-	}
-	?>
 	<div id='create'>
 		<h1>create</h1>
 		<div class='form_container'>	
-			<?=form_open('privilege/create')?>
+			<?=form_open('privileges/create')?>
 				<?=form_fieldset('Privilege createion form')?>
 				<div class='textfield'>
 					<?=form_label('Name', 'create_name')?>
@@ -36,15 +24,27 @@
 					?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Add Project', 'create_options[create_project]')?>
+					<?=form_label('watch projects', 'create_options[watch_projects]')?>
+					<?=form_checkbox('create_options[watch_projects]', 'accept', FALSE)?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('watch users', 'create_options[watch_users]')?>
+					<?=form_checkbox('create_options[watch_users]', 'accept', FALSE)?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('watch privileges', 'create_options[watch_privileges]')?>
+					<?=form_checkbox('create_options[watch_privileges]', 'accept', FALSE)?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('create project', 'create_options[create_project]')?>
 					<?=form_checkbox('create_options[create_project]', 'accept', FALSE)?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Add User', 'create_options[create_user]')?>
+					<?=form_label('create user', 'create_options[create_user]')?>
 					<?=form_checkbox('create_options[create_user]', 'accept', FALSE)?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('Add Privilege', 'create_options[create_privilege]')?>
+					<?=form_label('create privilege', 'create_options[create_privilege]')?>
 					<?=form_checkbox('create_options[create_privilege]', 'accept', FALSE)?>
 				</div>
 				<div class='buttons'>
@@ -53,41 +53,15 @@
 			<?=form_close();?>
 		</div>
 	</div>
-	<h1>Privileges</h1>
-	<div id='privilege'></div>
-	<a href="<?=site_url('')?>">back</a>
-</body>
-</html>
 
-<script type='text/javascript' src="<?=site_url('js/jquery-1.5.1.min.js')?>">
-</script>
+	<h1>privileges</h1>
+	<a href='<?=site_url('/privileges/create')?>'>create</a>
+	<div id='privileges'></div>
+
+<?php include_once './inc/footer.php'; ?>
+
 <script>
 	$(document).ready(function() {
-		get('privilege');
-<?php 
-	if(!isset($action) or $action != "create") {
-		echo "\t\t$('#create').hide();\n";
-	}
-?>
+		get('privileges');
 	});
-	function get(s)
-	{
-		$.ajax({
-		  url: "<?=site_url()?>"+s+'/get',
-		  data: "",
-		  success: function(data){
-			$('#'+s).html(data);
-		  }
-		});
-	}
-	function remove(id,s) 
-	{
-		$.ajax({
-		  url: "<?=site_url()?>"+s+'/remove',
-		  data: 'id='+id,
-		  success: function(data){
-				get(s);
-		  }
-		});
-	}
 </script>

@@ -4,6 +4,18 @@ class Projects extends CI_Controller
 {
 	var $table = 'projects';
 
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->helper(array('form'));
+		$this->load->library('session');
+	}
+
+	public function index()
+	{
+		$this->load->view('projects.php');
+	}
+
 	function create()
 	{
 		//Load
@@ -53,22 +65,21 @@ class Projects extends CI_Controller
 		$this->load->model('tdatabase_model');
 		$result = $this->tdatabase_model->get_entry();
 		$this->load->library('table');
-		$this->table->set_heading(array_keys($result[0]));
 		foreach($result as $key=>$value) {
-			$this->table->add_row(array_values($value));
+			$p = "<a href='".site_url('/projects/name/'.$value['name'])."'>".$value['name']."</a>";
+			$this->table->add_row(array($p));
 		}
 		echo $this->table->generate();
 	}
 
-	public function index()
+	public function name($name)
 	{
-		$this->load->view('projects.php');
-	}
-
-	public function __construct()
-	{
-		parent::__construct();
-		$this->load->helper(array('form'));
+		$this->load->database();
+		$this->load->model('tdatabase_model');
+		$result = $this->tdatabase_model->get_entry_where("name", $name);
+		$data['action'] = 'show';
+		$data['project'] = $result[0];
+		$this->load->view('projects_individual.php', $data);
 	}
 }
 
