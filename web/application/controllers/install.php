@@ -51,6 +51,18 @@ class Install extends CI_Controller
 					'type' => 'TEXT',
 					'null' => TRUE,
 				),
+                'fspec' => array(
+					'type' => 'TEXT',
+					'null' => TRUE,
+				),
+                'devspec' => array(
+					'type' => 'TEXT',
+					'null' => TRUE,
+				),
+                'qaspec' => array(
+					'type' => 'TEXT',
+					'null' => TRUE,
+				),
 		);
 		$this->dbforge->add_key('id', TRUE);
 		$this->dbforge->add_field($fields);
