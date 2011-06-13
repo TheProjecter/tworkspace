@@ -4,6 +4,29 @@ class Users extends CI_Controller
 {
 	var $table = 'users';
 
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->helper(array('form'));
+		$this->load->library('SimpleLoginSecure');
+		$this->load->library('session');
+		$this->load->database();
+		if(! $this->session->userdata('logged_in')) {
+			redirect('');
+		}
+	}
+
+	public function index()
+	{
+		$this->load->helper(array('form'));
+		//Load the URL helper
+		$this->load->helper('url');
+		$data['privilege'] = array();
+		$data['managers'] = array();
+		$data['projects'] = array();
+		$this->load->view('users.php', $data);
+	}
+
 	private function upload($name)
 	{
 		$config['upload_path'] = './uploads/';
@@ -158,42 +181,6 @@ class Users extends CI_Controller
 	}
 
 
-	public function login()
-	{
-		//Load
-		$this->load->helper('url');
-		$this->load->library('form_validation');
-		
-		//Check incoming variables
-		$config = array(
-			array(
-				'field' => 'login_email',
-				'label' => 'Username',
-				'rules' => "required|valid_email"
-			),
-			array(
-				'field' => 'login_password',
-				'label' => 'Password',
-				'rules' => "required|min_length[4]|max_length[32]"
-			),
-		);
-
-		$this->form_validation->set_rules($config);
-				
-		if ($this->form_validation->run() == false) {
-			$data['action'] = 'login';
-			$this->load->view('users.php', $data);
-		} else {
-			if($this->simpleloginsecure->login($this->input->post('login_email'), 
-			$this->input->post('login_password'))) 
-			{
-				redirect('');	
-			} else {
-				redirect('/users/login');			
-			}			
-		}
-	}
-
 	public function name($name)
 	{
 		$this->load->database();
@@ -227,29 +214,6 @@ class Users extends CI_Controller
 		$this->load->view('users_individual.php', $data);
 	}
 
-	public function index()
-	{
-		$this->load->helper(array('form'));
-		//Load the URL helper
-		$this->load->helper('url');
-		$data['privilege'] = array();
-		$data['managers'] = array();
-		$data['projects'] = array();
-		$this->load->view('users.php', $data);
-		
-		//BOF Status Info
-		//echo '<div id="status">';
-		//	echo '<h3>User Status</h3>';
-		//	if($this->session->userdata('logged_in')) {
-		//		echo 'User logged in as ' . $this->session->userdata('email');
-		//	} else {
-		//		echo 'User not logged in';
-		//	}
-		//echo '</div>';
-		//echo '<hr />';
-		//EOF Status Info
-	}
-
 	public function logout()
 	{
 		//Load
@@ -260,14 +224,6 @@ class Users extends CI_Controller
 		redirect('');
 	}
 
-	public function __construct()
-	{
-		parent::__construct();
-		$this->load->helper(array('form'));
-		$this->load->library('SimpleLoginSecure');
-		$this->load->library('session');
-		$this->load->database();
-	}
 }
 
 /* End of file welcome.php */
