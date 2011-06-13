@@ -26,7 +26,11 @@ class Welcome extends CI_Controller {
 	public function index()
 	{
 		$this->load->library('session');
-		$this->load->view('welcome_message');
+		if($this->session->userdata('logged_in')) {
+			$this->load->view('welcome_members');
+		} else {
+			redirect('login');
+		}
 	}
 }
 

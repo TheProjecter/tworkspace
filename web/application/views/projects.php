@@ -15,10 +15,10 @@
 				</div>
 				<div id="attach">
 					<input type='hidden' id='n_attachments' value='0' />
+					<?=form_button('attach', 'attach file', 'onClick="add_attachment()"')?>
 				</div>
 				<div class='buttons'>
 					<?=form_submit('create', 'create')?>
-					<?=form_button('attach', 'attach', 'onClick="add_attachment()"')?>
 				</div>
 			<?=form_close();?>
 		</div>
@@ -55,7 +55,7 @@
 			'<input type=hidden name="id['+i+']" value="'+i+'" />' +
 			'<label id="l1'+i+'" for="project_attachment_name[' + i + ']">name</label>' +
 			'<input id="t1'+i+'" type="text" name="project_attachment_name[' + i + ']" /><br>' + 
-			'<label id="l2'+i+'" for="project_attachment[' + i + ']">attachment</label>' +
+			'<label id="l2'+i+'" for="project_attachment[' + i + ']">file</label>' +
 			'<input id="t2'+i+'" type="file" name="project_attachment[' + i + ']"<br>' + 
 			'<button id="b'+i+'" onClick=delete_attachment(' + i + ')>delete</button>' +
 			'</div>';

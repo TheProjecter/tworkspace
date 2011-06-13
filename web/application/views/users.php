@@ -39,25 +39,6 @@
 			<?=form_close();?>
 		</div>
 	</div>
-	<div id='login'>
-		<h1>Login</h1>
-		<div class='form_container'>	
-			<?=form_open('users/login')?>
-				<?=form_fieldset('User login form')?>
-				<div class='textfield'>
-					<?=form_label('Email', 'login_email')?>
-					<?=form_input('login_email');?>
-				</div>
-				<div class='textfield'>
-					<?=form_label('Password', 'login_password')?>
-					<?=form_password('login_password')?>
-				</div>
-				<div class='buttons'>
-					<?=form_submit('login', 'Login')?>
-				</div>
-			<?=form_close();?>
-		</div>
-	</div>
 
 	<h1>users</h1>
 	<a href='<?=site_url('/users/create')?>'>create</a>
