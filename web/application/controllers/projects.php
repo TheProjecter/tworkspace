@@ -35,11 +35,6 @@ class Projects extends CI_Controller
 				'label' => 'description',
 				'rules' => "required|max_length[300]"
 			),
-			array(
-				'field' => 'project_attachment_name',
-				'label' => 'name',
-				'rules' => "required|min_length[4]|max_length[50]|alpha_numeric"
-			),
 		);
 
 		$this->form_validation->set_rules($config);
@@ -55,6 +50,33 @@ class Projects extends CI_Controller
 			return $data;
 	}
 
+	private function upload_attachments()
+	{
+		$names = $this->input->post('project_attachment_name');
+		$files = $this->input->post('project_attachment');
+		$config['upload_path'] = './uploads/';
+		$config['allowed_types'] = 'pdf|doc|docx|odt';
+		$config['max_size'] = '10000';
+		$config['remove_spaces'] = TRUE;
+		$config['overwrite'] = TRUE;
+
+		print_r($files);
+		$this->load->library('upload', $config);
+		if (! $this->upload->do_upload(array_values($files))) {
+			$data['message'] = $this->upload->display_errors();
+			$this->load->view('users', $data);
+			return false;
+		}	
+		//if(is_array($names)) {
+		//	foreach($names as $i=>$v) {
+		//		if(! isset($files[$i])) continue;
+		//		if(empty($v) or empty($files[$i])) return false;
+		//		$config['file_name'] = $v;
+		//	}
+		//}
+		return true;
+	}
+
 	public function create()
 	{
 		$this->load->helper('url');
@@ -62,8 +84,14 @@ class Projects extends CI_Controller
 		if (! $this-> is_valid_form()) {
 			$data['action'] = 'create';
 			$this->load->view('projects.php', $data);
-			echo "not ok";
+			echo "not valid<br>";
 		} else {
+			if (! $this->upload_attachments()) {
+				$data['action'] = 'create';
+				$this->load->view('projects.php', $data);
+				echo "missed attachment name or file<br>";
+				return;
+			}
 		/*
 			$this->load->database();
 			$this->load->model('tdatabase_model');
@@ -71,7 +99,7 @@ class Projects extends CI_Controller
 			$this->tdatabase_model->insert_entry($data, 'name');
 			redirect('projects');	
 		*/
-			echo "ok";
+			echo "valid<br>";
 		}
 	}
 	public function remove()
