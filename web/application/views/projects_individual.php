@@ -7,12 +7,21 @@
 				<?=form_fieldset('project information')?>
 				<div class='textfield'>
 					<?=form_label('id', 'id')?>
-					<?$data=array('value'=>$project['id'],'name'=>'id','disabled'=>'diabled')?>
+					<?$data=array('value'=>$project['id'],'name'=>'id','readonly'=>'readonly')?>
 					<?=form_input($data)?>
 				</div>
 				<div class='textfield'>
-					<?=form_label('description', 'description')?>
-					<?=form_textarea('description', $project['description'])?>
+					<?=form_label('name', 'project_name')?>
+					<?=form_input('project_name', $project['name'])?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('description', 'project_desc')?>
+					<?=form_textarea('project_desc', $project['description'])?>
+				</div>
+				<div class='textfield'>
+					<?=form_label('attachments', 'attachments')?>
+					<div id='attachments' style="width:180px;">
+					</div>
 				</div>
 				<div class='buttons'>
 					<?=form_submit('update', 'update')?>
@@ -24,6 +33,33 @@
 <?php include_once './inc/footer.php'; ?>
 
 <script>
+
+	$(document).ready(function() {
+		get_attachments();
+	});
+
+	function get_attachments()
+	{
+		$.ajax({
+		  url: "<?=site_url('/projects/get_attachments/'.$project['name'])?>",
+		  data: "",
+		  success: function(data){
+			$('#attachments').html(data);
+		  }
+		});
+	}
+
+	function remove_attachment(i)
+	{
+		$.ajax({
+		  url: "<?=site_url('/projects/remove_attachment/'.$project['name'])?>/" + i,
+		  data: "",
+		  success: function(data){
+			$('#attachments').html(data);
+		  }
+		});
+	}
+
 	function delete_attachment(i)
 	{
 		$("#t1"+i).remove();

@@ -3,7 +3,7 @@
 	<div id='create'>
 		<h1>create</h1>
 		<div class='form_container'>	
-			<?=form_open('projects/create')?>
+			<?=form_open_multipart('projects/create')?>
 				<?=form_fieldset('project creation form')?>
 				<div class='textfield'>
 					<?=form_label('name', 'project_name')?>
@@ -13,7 +13,7 @@
 					<?=form_label('description', 'project_desc')?>
 					<?=form_textarea('project_desc')?>
 				</div>
-				<div id="attach">
+				<div id="attachments">
 					<input type='hidden' id='n_attachments' value='0' />
 					<?=form_button('attach', 'attach file', 'onClick="add_attachment()"')?>
 				</div>
@@ -43,14 +43,14 @@
 		$("#t2"+i).remove();
 		$("#b"+i).remove();
 		$("#f"+i).remove();
-		html=$('#attach').html();
-		$('#attach').html(html);
+		html=$('#attachments').html();
+		$('#attachments').html(html);
 	}
 
 	function add_attachment()
 	{
 		i=$('#n_attachments').val();
-		html=$('#attach').html();
+		html=$('#attachments').html();
 		form='<div id="f'+i+'" class="textfield">' +
 			'<input type=hidden name="id['+i+']" value="'+i+'" />' +
 			'<label id="l1'+i+'" for="project_attachment_name[' + i + ']">name</label>' +
@@ -59,7 +59,7 @@
 			'<input id="t2'+i+'" type="file" name="project_attachment[' + i + ']"<br>' + 
 			'<button id="b'+i+'" onClick=delete_attachment(' + i + ')>delete</button>' +
 			'</div>';
-		$('#attach').html(html+form);
+		$('#attachments').html(html+form);
 		$('#n_attachments').val(++i);
 	}
 </script>
