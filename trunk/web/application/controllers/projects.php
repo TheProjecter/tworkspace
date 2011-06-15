@@ -53,7 +53,7 @@ class Projects extends CI_Controller
 	private function upload_attachments()
 	{
 		$config['upload_path'] = './uploads/';
-		$config['allowed_types'] = 'pdf|doc|docx|odt';
+		$config['allowed_types'] = 'pdf|djvu|doc|docx|odt|PDF|DJVU|DOC|DOCX|ODT';
 		$config['max_size'] = '10000';
 		$config['remove_spaces'] = TRUE;
 		$config['overwrite'] = TRUE;
@@ -125,6 +125,9 @@ class Projects extends CI_Controller
 			$input_data = $this->get_input_data();	
 			$data['project']['description'] = $input_data['description'];
 			$data['project']['name'] = $input_data['name'];
+			if ($this->upload_attachments()) {
+				$data['project']['attachments'] .= "|".join("|", $this->tupload->file_names); 
+			}
 			$this->tdatabase_model->update_entry($data['project']);
 		} else {
 			$data['error'] = "some forms are not filled properly";
@@ -139,10 +142,11 @@ class Projects extends CI_Controller
 		$result = $this->tdatabase_model->get_entry_where("name", $name);
 		$project = $result[0];
 		foreach(explode("|", $project['attachments']) as $a) {
+			if(empty($a)) continue;
 			print("<a href='". site_url('/uploads/'.$a) ."'>$a</a>".
 				  " (<a href='javascript: void(0);' ".
-				  "onClick='remove_attachment(\"".$a."\")'>remove</a>)<br>"
-					);
+				  "onClick='remove_attachment(\"".$a."\",\"".$name."\")'>remove</a>)<br>"
+				);
 		}
 	}
 
