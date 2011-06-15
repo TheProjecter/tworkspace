@@ -29,9 +29,6 @@
 		if (! isset($action) or $action != "create") {
 			echo "$('#create').hide();";
 		}
-		if (! isset($action) or $action != "login") {
-			echo "$('#login').hide();";
-		}
 		?>
 	});
 </script>
