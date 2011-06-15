@@ -14,7 +14,6 @@
 					<?=form_textarea('project_desc')?>
 				</div>
 				<div id="attachments">
-					<input type='hidden' id='n_attachments' value='0' />
 					<?=form_button('attach', 'attach file', 'onClick="add_attachment()"')?>
 				</div>
 				<div class='buttons'>
@@ -34,32 +33,6 @@
 	$(document).ready(function() {
 		get('projects');
 	});
-
-	function delete_attachment(i)
-	{
-		$("#t1"+i).remove();
-		$("#l1"+i).remove();
-		$("#l2"+i).remove();
-		$("#t2"+i).remove();
-		$("#b"+i).remove();
-		$("#f"+i).remove();
-		html=$('#attachments').html();
-		$('#attachments').html(html);
-	}
-
-	function add_attachment()
-	{
-		i=$('#n_attachments').val();
-		html=$('#attachments').html();
-		form='<div id="f'+i+'" class="textfield">' +
-			'<input type=hidden name="id['+i+']" value="'+i+'" />' +
-			'<label id="l1'+i+'" for="project_attachment_name[' + i + ']">name</label>' +
-			'<input id="t1'+i+'" type="text" name="project_attachment_name[' + i + ']" /><br>' + 
-			'<label id="l2'+i+'" for="project_attachment[' + i + ']">file</label>' +
-			'<input id="t2'+i+'" type="file" name="project_attachment[' + i + ']"<br>' + 
-			'<button id="b'+i+'" onClick=delete_attachment(' + i + ')>delete</button>' +
-			'</div>';
-		$('#attachments').html(html+form);
-		$('#n_attachments').val(++i);
-	}
 </script>
+
+<?php include_once './inc/attachments.php'; ?>

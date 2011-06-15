@@ -46,3 +46,8 @@
 
 <?php include_once './inc/footer.php'; ?>
 
+<script>
+	$(document).ready(function() {
+		get('users');
+	});
+</script>
