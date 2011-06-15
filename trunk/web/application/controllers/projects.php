@@ -43,11 +43,11 @@ class Projects extends CI_Controller
 
 	private function get_input_data()
 	{
-			$data = array(
-					'name' => $this->input->post('project_name'),
-					'description' => $this->input->post('project_desc'),
-					);
-			return $data;
+		$data = array(
+				'name' => $this->input->post('project_name'),
+				'description' => $this->input->post('project_desc'),
+				);
+		return $data;
 	}
 
 	private function upload_attachments()

@@ -6,9 +6,8 @@
 <link rel="stylesheet" type="text/css" href="<?=site_url('css/basic.css')?>" />
 
 </head>
+
 <body>
-
-
 	<table>
 	<tr> <td>  
 <?php
@@ -21,8 +20,8 @@
 	</td> </tr>
 	<tr> <td> <a href="<?=site_url('')?>">home</a> </td> </tr>
 	<tr> <td> <a href="<?=site_url('projects')?>">projects</a></td></tr>
-	<tr> <td> <a href="<?=site_url('privileges')?>">privileges</a></td></tr>
 	<tr> <td> <a href="<?=site_url('users')?>">users</a></td></tr>
+	<tr> <td> <a href="<?=site_url('privileges')?>">privileges</a></td></tr>
 	</table>
 
 	<?php 
