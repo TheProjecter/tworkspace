@@ -9,12 +9,12 @@ class tdatabase_model extends CI_Model {
 		parent::__constructor();
 	}
 
-	function insert_entry($data, $entry="")
+	function insert_entry($data, $column="")
 	{
 		$this->CI =& get_instance();
 
-		if(! empty($entry)) {
-			$this->CI->db->where($entry, $data[$entry]); 
+		if(! empty($column)) {
+			$this->CI->db->where($column, $data[$column]); 
 			$query = $this->CI->db->get_where($this->CI->table);
 			if ($query->num_rows() > 0) {
 				return false;
@@ -28,23 +28,29 @@ class tdatabase_model extends CI_Model {
 		}
 	} 
 
-	function update_entry()
+	function update_entry($data, $table="", $column="id")
 	{
+		$this->CI =& get_instance();
+		if (empty($table)) {
+			$table = $this->CI->table;
+		}
+		$this->CI->db->where($column, $data[$column]);
+		$this->CI->db->update($table, $data); 
 	}
 
 	function remove_entry()
 	{
 	}
 
-	function get_entry_where($entry="", $value="", $table="")
+	function get_entry_where($column="", $value="", $table="")
 	{
 		$this->CI =& get_instance();
 
 		if (empty($table)) {
 			$table = $this->CI->table;
 		}
-		if (! empty($entry)) {
-			$this->CI->db->where($entry, $value); 
+		if (! empty($column)) {
+			$this->CI->db->where($column, $value); 
 			$query = $this->CI->db->get_where($table);
 			
 			if ($query->num_rows() == 0) {

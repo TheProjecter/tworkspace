@@ -51,15 +51,7 @@ class Install extends CI_Controller
 					'type' => 'TEXT',
 					'null' => TRUE,
 				),
-                'fspec' => array(
-					'type' => 'TEXT',
-					'null' => TRUE,
-				),
-                'devspec' => array(
-					'type' => 'TEXT',
-					'null' => TRUE,
-				),
-                'qaspec' => array(
+                'attachments' => array(
 					'type' => 'TEXT',
 					'null' => TRUE,
 				),

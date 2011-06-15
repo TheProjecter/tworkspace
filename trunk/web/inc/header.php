@@ -31,4 +31,9 @@
 		echo $message;
 		echo '</div>';
 	}
+	if (isset($error)) {
+		echo '<div id="error">';
+		echo $error;
+		echo '</div>';
+	}
 	?>
