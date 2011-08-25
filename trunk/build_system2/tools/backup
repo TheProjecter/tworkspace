@@ -1,0 +1,193 @@
+#!/usr/bin/perl -w
+
+###############################################################################
+use strict; # Always working in strict mode with warnings on
+
+###############################################################################
+use File::Basename;
+use XML::Simple;
+use Data::Dumper;
+use File::Copy;
+use File::Path;
+
+###############################################################################
+# Subroutine declarations
+###############################################################################
+sub show_help($);
+sub read_config();
+sub has_argument($);
+sub is_checkedout($);
+sub get_checkedout();
+sub normalize($);
+
+###############################################################################
+# Global variables
+###############################################################################
+# Messaging and this script name/location/version related.
+my $PROGNAME = basename($0);
+my $PROGVER = "";
+my $config_file 			= "config.xml";
+my %config;
+my $checked_outs;
+
+###############################################################################
+# Main Block 
+###############################################################################
+show_help(0) if (exists $ARGV[0] and $ARGV[0] =~ /^\-h(elp)?$/);
+
+read_config();
+
+if ($config{'dest'} eq "time") {
+	my @date = localtime();
+	my $year = $date[5]+1900;
+	my $month = $date[4]+1;
+	$config{'dest'} = "$date[3]_$month"."_$year";
+}
+
+if(has_argument("back")) {
+	my $t = $config{'dest'};
+	$config{'dest'} = $config{'src'};
+	$config{'src'} = $t;
+}
+
+if ($config{'dest'} !~ "^/vobs/.*") {
+	if ( -e $config{'dest'}) {
+		while (1) {
+			print "There already is a directory with the name $config{'dest'}\n";
+			print "Would you like to rewrite? [Y/n] ";
+			my $choose = <STDIN>;
+			chomp($choose);
+			$choose = "Y" if ($choose eq ""); 
+			if(uc($choose) eq "Y") {
+				rmdir -r ($config{'dest'});
+				mkdir "$config{'dest'}";
+				last;
+			} elsif (uc($choose) eq "N") {
+				exit;
+			}
+		}
+	} else {
+		mkdir $config{'dest'};
+		print "Created $config{'dest'}\n";
+	}
+}
+get_checkedout();
+
+print "$config{'src'} -> $config{'dest'}\n";
+die if (! -d $config{'src'});
+die if (! -d $config{'dest'});
+foreach my $file (@{$config{'file'}}) {
+	mkpath "$config{'dest'}/" . dirname($file);
+	if(has_argument("co") and $config{'dest'} =~ "^/vobs/.*") {
+		if(! is_checkedout($file)) {
+			system("cleartool checkout -nc $config{'dest'}/$file");
+		}
+	}
+	print "$file";
+	copy("$config{'src'}/$file", "$config{'dest'}/$file");
+	print " - ok\n";
+}
+
+###############################################################################
+# Subroutine definitions
+###############################################################################
+sub get_checkedout()
+{
+	system("/user/tools/bld_utils/bin/checkouts.pl > tmp");
+	open(TMP, "tmp");
+	while(<TMP>) {
+		$checked_outs .= normalize($_);
+	}
+	close(TMP);
+	unlink("tmp");	
+}
+
+sub is_checkedout($)
+{
+	my ($file) = @_;
+	if ($checked_outs =~ normalize($file)) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+#=============================================================================
+# adds / (slash) at the end of the argument if there are not one
+sub normalize($)
+{
+	my ($a) = @_;
+	if ($a =~ /.*\/$/) {
+		return $a;
+	} elsif ($a =~ /(.*)\n$/) {
+		return "$1\/\n";
+	} else {
+		return "$a\/";
+	}
+}
+
+#=============================================================================
+# returns 1 if in the arguments list there is given argument, otherwise returns
+# 0
+sub has_argument($)
+{
+	my ($p) = @_;
+	if(join(" ", @ARGV) =~ /-?$p/) {
+		return 1;	
+	} else {
+		return 0;	
+	}
+}
+
+#=============================================================================
+# reads config_file
+sub read_config()
+{
+	# getting all inputs from the config_file
+	my $xml_config = XML::Simple->new();
+	my $config_ref = $xml_config->XMLin($config_file);
+# DEBUG
+	#print Dumper($config_ref);
+# END
+	%config = %$config_ref;
+}
+
+#===============================================================================
+# Show help message and exit with given exit code (0 is assumed success status)
+# In: exit code
+sub show_help($)
+{
+	my $status = shift;
+	print qq!$PROGNAME
+	
+	NAME
+	$PROGNAME - Description  
+	
+	SYNOPSYS
+	$PROGNAME [option] makefiles_list
+	
+	DESCRIPTION
+	
+	OPTIONS
+	-h[elp]            Print this help screen and exit
+	
+	ENVIRONMENT
+	
+	RESTRICTIONS
+	Tested with GNU C/C++ compilers only.
+	
+	SEE ALSO
+	gcc(1) g++(1)
+	
+	AUTHOR
+	Tigran Hovhannisyan 
+	
+	REVISION HISTORY
+	!;
+	exit($status);
+} # show_help()
+
+################################################################################
+#                          E N D  O F  S C R I P T
+################################################################################
+
