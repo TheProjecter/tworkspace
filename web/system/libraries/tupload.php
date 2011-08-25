@@ -37,6 +37,7 @@ class CI_tupload extends CI_Upload {
 	 */
 	public function do_upload_array($field = 'userfile')
 	{
+		if(! empty($_FILES))
 		foreach ($_FILES[$field]['tmp_name'] as $key => $tmp_name) {
 		// Are $_FILES[$field] set? If not, no reason to continue.
 		if ( ! isset($_FILES[$field]))
