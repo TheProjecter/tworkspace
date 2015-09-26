@@ -1,0 +1,1 @@
+Makefile based build system to compile/link C++ projects under Unix like systems. The main goal is to have a fast build system, which will work with the web and svn. It computes dependencies of source files CORRECTLY, doesn't do inefficient, auxiliary things. It's absolutely free and open.
